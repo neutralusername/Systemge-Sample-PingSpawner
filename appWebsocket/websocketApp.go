@@ -28,16 +28,16 @@ func (app *WebsocketApp) OnStop() error {
 }
 
 func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
-	return map[string]Application.AsyncMessageHandler{
-		topics.PING: func(message *Message.Message) error {
-			println(app.client.GetName() + " received ping from: " + message.GetOrigin())
-			return nil
-		},
-	}
+	return map[string]Application.AsyncMessageHandler{}
 }
 
 func (app *WebsocketApp) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
-	return map[string]Application.SyncMessageHandler{}
+	return map[string]Application.SyncMessageHandler{
+		topics.PING: func(message *Message.Message) (string, error) {
+			println(app.client.GetName() + " received ping from: " + message.GetOrigin())
+			return "pong", nil
+		},
+	}
 }
 
 func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
@@ -45,21 +45,7 @@ func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.Custo
 }
 
 func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
-	return map[string]Application.WebsocketMessageHandler{
-		topics.PING: func(client *WebsocketClient.Client, message *Message.Message) error {
-			/* groups := app.messageBrokerClient.GetWebsocketServer().GetGroups(client.GetId())
-			if len(groups) != 1 {
-				return Utilities.NewError("Expected exactly one group for client", nil)
-			}
-			chessRoom := groups[0]
-			topic := "move_" + chessRoom
-			err := app.messageBrokerClient.AsyncMessage(topic, client.GetId(), message.GetPayload())
-			if err != nil {
-				return Utilities.NewError("Error sending async message", err)
-			} */
-			return nil
-		},
-	}
+	return map[string]Application.WebsocketMessageHandler{}
 }
 
 func (app *WebsocketApp) OnConnectHandler(connection *WebsocketClient.Client) {

@@ -27,10 +27,11 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 }
 
 func (app *App) OnStart() error {
-	err := app.client.AsyncMessage(topics.PING, app.client.GetName(), "test")
+	response, err := app.client.SyncMessage(topics.PING, app.client.GetName(), "test")
 	if err != nil {
 		panic(err)
 	}
+	println(app.client.GetName() + " received pong from: " + response.GetOrigin())
 	return nil
 }
 
