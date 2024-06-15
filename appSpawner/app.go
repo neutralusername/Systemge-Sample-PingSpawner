@@ -13,29 +13,15 @@ import (
 type App struct {
 	client *Client.Client
 
-	// the games topic resolver will be on port 6002x
-	chessRoomIds map[string]bool           // x -> inUse
-	chessClients map[string]*Client.Client // x -> client
-	mutex        sync.Mutex
+	idCounter int
+	mutex     sync.Mutex
 }
 
 func New(client *Client.Client, args []string) (Application.Application, error) {
 	app := &App{
 		client: client,
 
-		chessRoomIds: map[string]bool{
-			"0": false,
-			"1": false,
-			"2": false,
-			"3": false,
-			"4": false,
-			"5": false,
-			"6": false,
-			"7": false,
-			"8": false,
-			"9": false,
-		},
-		chessClients: map[string]*Client.Client{},
+		idCounter: 0,
 	}
 	return app, nil
 }
@@ -65,28 +51,20 @@ func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandH
 func (app *App) NewGame(message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
-	availableId := ""
-	for port, inUse := range app.chessRoomIds {
-		if !inUse {
-			availableId = port
-			break
-		}
-	}
-	if availableId == "" {
-		return "", Utilities.NewError("No available room numbers", nil)
-	}
-	moveTopic := "move_" + availableId
-	pingClient := Client.New("clientPing"+availableId, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger(), nil)
-	pingApp, err := appPing.New(pingClient, []string{moveTopic})
+	id := Utilities.IntToString(app.idCounter)
+	app.idCounter++
+	pingTopic := "ping_" + id
+	pingClient := Client.New("clientPing"+id, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger(), nil)
+	pingApp, err := appPing.New(pingClient, []string{pingTopic})
 	if err != nil {
-		return "", Utilities.NewError("Error creating ping app "+availableId, err)
+		return "", Utilities.NewError("Error creating ping app "+id, err)
 	}
 	pingClient.SetApplication(pingApp)
 	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
 		return "", Utilities.NewError("Error dialing ping broker", err)
 	}
-	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addAsyncTopic", app.client.GetName(), moveTopic), 5000)
+	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addAsyncTopic", app.client.GetName(), pingTopic), 5000)
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with chess broker", err)
 	}
@@ -94,7 +72,7 @@ func (app *App) NewGame(message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Utilities.NewError("Error dialing topic resolution server", err)
 	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerPing "+moveTopic), 5000)
+	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerPing "+pingTopic), 5000)
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
@@ -103,7 +81,5 @@ func (app *App) NewGame(message *Message.Message) (string, error) {
 		return "", Utilities.NewError("Error starting chess client", err)
 	}
 
-	app.chessRoomIds[availableId] = true
-	app.chessClients[availableId] = pingClient
 	return "", nil
 }
