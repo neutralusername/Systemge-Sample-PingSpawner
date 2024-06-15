@@ -13,15 +13,16 @@ import (
 type App struct {
 	client *Client.Client
 
-	idCounter int
-	mutex     sync.Mutex
+	idCounter     int
+	activeClients map[string]*Client.Client
+	mutex         sync.Mutex
 }
 
 func New(client *Client.Client, args []string) (Application.Application, error) {
 	app := &App{
-		client: client,
-
-		idCounter: 0,
+		client:        client,
+		activeClients: make(map[string]*Client.Client),
+		idCounter:     0,
 	}
 	return app, nil
 }
@@ -50,6 +51,32 @@ func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandH
 }
 
 func (app *App) End(message *Message.Message) (string, error) {
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+	id := message.GetPayload()
+	client := app.activeClients[id]
+	err := client.Stop()
+	if err != nil {
+		return "", Utilities.NewError("Error stopping client "+id, err)
+	}
+	delete(app.activeClients, id)
+	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
+	if err != nil {
+		return "", Utilities.NewError("Error dialing ping broker", err)
+	}
+	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), "ping_"+id), 5000)
+	if err != nil {
+		return "", Utilities.NewError("Error exchanging messages with chess broker", err)
+	}
+	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
+	if err != nil {
+		return "", Utilities.NewError("Error dialing topic resolution server", err)
+	}
+	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerPing ping_"+id), 5000)
+	if err != nil {
+		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
+	}
+	println("deleted ping client " + id)
 	return "", nil
 }
 
@@ -81,10 +108,11 @@ func (app *App) New(message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
+	println("created ping client " + id)
 	err = pingClient.Start()
 	if err != nil {
 		return "", Utilities.NewError("Error starting chess client", err)
 	}
-
-	return "", nil
+	app.activeClients[id] = pingClient
+	return id, nil
 }

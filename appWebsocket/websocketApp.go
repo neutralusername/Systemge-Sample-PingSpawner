@@ -10,12 +10,14 @@ import (
 )
 
 type WebsocketApp struct {
-	client *Client.Client
+	client        *Client.Client
+	clientPingIds map[string]string
 }
 
 func New(messageBrokerClient *Client.Client, args []string) (Application.WebsocketApplication, error) {
 	return &WebsocketApp{
-		client: messageBrokerClient,
+		client:        messageBrokerClient,
+		clientPingIds: make(map[string]string),
 	}, nil
 }
 
@@ -49,11 +51,17 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 }
 
 func (app *WebsocketApp) OnConnectHandler(connection *WebsocketClient.Client) {
-	_, err := app.client.SyncMessage(topics.NEW, connection.GetId(), "")
+	response, err := app.client.SyncMessage(topics.NEW, connection.GetId(), "")
 	if err != nil {
 		panic(Utilities.NewError("Error sending sync message", err))
 	}
+	app.clientPingIds[connection.GetId()] = response.GetPayload()
 }
 
 func (app *WebsocketApp) OnDisconnectHandler(connection *WebsocketClient.Client) {
+	pingId := app.clientPingIds[connection.GetId()]
+	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), pingId)
+	if err != nil {
+		panic(err)
+	}
 }
