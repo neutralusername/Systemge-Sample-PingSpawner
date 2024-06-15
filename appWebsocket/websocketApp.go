@@ -56,6 +56,10 @@ func (app *WebsocketApp) OnConnectHandler(connection *WebsocketClient.Client) {
 		panic(Utilities.NewError("Error sending sync message", err))
 	}
 	app.clientPingIds[connection.GetId()] = response.GetPayload()
+	err = app.client.AsyncMessage("ping_"+response.GetPayload(), connection.GetId(), "ping")
+	if err != nil {
+		panic(Utilities.NewError("Error sending async message", err))
+	}
 }
 
 func (app *WebsocketApp) OnDisconnectHandler(connection *WebsocketClient.Client) {

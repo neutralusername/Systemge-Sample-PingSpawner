@@ -42,6 +42,7 @@ func (app *App) OnStop() error {
 func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
 	return map[string]Application.AsyncMessageHandler{
 		app.id: func(message *Message.Message) error {
+			println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
 			return nil
 		},
 	}
