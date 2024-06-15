@@ -106,7 +106,7 @@ func (app *App) NewGame(message *Message.Message) (string, error) {
 		return "", Utilities.NewError("Error starting chess client", err)
 	}
 
-	app.chessRoomIds[firstAvailableRoomNumber] = false
+	app.chessRoomIds[firstAvailableRoomNumber] = true
 	app.chessClients[firstAvailableRoomNumber] = chessClient
 	return "", nil
 }
