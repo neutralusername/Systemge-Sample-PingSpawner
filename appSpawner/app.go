@@ -76,7 +76,7 @@ func (app *App) End(message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
-	println("deleted ping client " + id)
+	println("ended ping client " + id)
 	return "", nil
 }
 
