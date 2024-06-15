@@ -94,7 +94,7 @@ func (app *App) NewGame(message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Utilities.NewError("Error dialing topic resolution server", err)
 	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerChess "+moveTopic), 5000)
+	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerPing "+moveTopic), 5000)
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
