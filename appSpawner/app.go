@@ -40,7 +40,8 @@ func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHan
 
 func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
 	return map[string]Application.SyncMessageHandler{
-		topics.NEW: app.NewGame,
+		topics.NEW: app.New,
+		topics.END: app.End,
 	}
 }
 
@@ -48,7 +49,11 @@ func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandH
 	return map[string]Application.CustomCommandHandler{}
 }
 
-func (app *App) NewGame(message *Message.Message) (string, error) {
+func (app *App) End(message *Message.Message) (string, error) {
+	return "", nil
+}
+
+func (app *App) New(message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	id := Utilities.IntToString(app.idCounter)

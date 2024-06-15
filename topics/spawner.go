@@ -1,4 +1,4 @@
 package topics
 
 const NEW = "new"
-const KILL = "kill"
+const END = "end"
