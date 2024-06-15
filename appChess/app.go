@@ -5,6 +5,7 @@ import (
 	"Systemge/Client"
 	"Systemge/Message"
 	"Systemge/Utilities"
+	"SystemgeSampleChess/topics"
 )
 
 type App struct {
@@ -26,7 +27,10 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 }
 
 func (app *App) OnStart() error {
-	println("chess app started", app.moveTopic)
+	err := app.client.AsyncMessage(topics.MOVE, app.client.GetName(), "test")
+	if err != nil {
+		panic(err)
+	}
 	return nil
 }
 
