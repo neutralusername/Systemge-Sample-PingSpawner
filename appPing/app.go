@@ -1,17 +1,17 @@
-package appChess
+package appPing
 
 import (
 	"Systemge/Application"
 	"Systemge/Client"
 	"Systemge/Message"
 	"Systemge/Utilities"
-	"SystemgeSampleChess/topics"
+	"SystemgeSamplePingSpawner/topics"
 )
 
 type App struct {
 	client *Client.Client
 
-	moveTopic string
+	id string
 }
 
 func New(client *Client.Client, args []string) (Application.Application, error) {
@@ -21,13 +21,13 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 	app := &App{
 		client: client,
 
-		moveTopic: args[0],
+		id: args[0],
 	}
 	return app, nil
 }
 
 func (app *App) OnStart() error {
-	err := app.client.AsyncMessage(topics.MOVE, app.client.GetName(), "test")
+	err := app.client.AsyncMessage(topics.PING, app.client.GetName(), "test")
 	if err != nil {
 		panic(err)
 	}
@@ -40,7 +40,7 @@ func (app *App) OnStop() error {
 
 func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
 	return map[string]Application.AsyncMessageHandler{
-		app.moveTopic: func(message *Message.Message) error {
+		app.id: func(message *Message.Message) error {
 			return nil
 		},
 	}

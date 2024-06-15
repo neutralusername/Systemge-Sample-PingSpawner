@@ -2,8 +2,8 @@ package main
 
 import (
 	"Systemge/Module"
-	"SystemgeSampleChess/appSpawner"
-	"SystemgeSampleChess/appWebsocket"
+	"SystemgeSamplePingSpawner/appSpawner"
+	"SystemgeSamplePingSpawner/appWebsocket"
 )
 
 const TOPICRESOLUTIONSERVER_ADDRESS = "127.0.0.1:60000"
@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = Module.NewBrokerFromConfig("brokerChess.systemge", ERROR_LOG_FILE_PATH).Start()
+	err = Module.NewBrokerFromConfig("brokerPing.systemge", ERROR_LOG_FILE_PATH).Start()
 	if err != nil {
 		panic(err)
 	}

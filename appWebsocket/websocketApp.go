@@ -6,7 +6,7 @@ import (
 	"Systemge/Message"
 	"Systemge/Utilities"
 	"Systemge/WebsocketClient"
-	"SystemgeSampleChess/topics"
+	"SystemgeSamplePingSpawner/topics"
 )
 
 type WebsocketApp struct {
@@ -29,8 +29,8 @@ func (app *WebsocketApp) OnStop() error {
 
 func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
 	return map[string]Application.AsyncMessageHandler{
-		topics.MOVE: func(message *Message.Message) error {
-			println(app.client.GetName() + " received message from: " + message.GetOrigin())
+		topics.PING: func(message *Message.Message) error {
+			println(app.client.GetName() + " received ping from: " + message.GetOrigin())
 			return nil
 		},
 	}
@@ -46,7 +46,7 @@ func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.Custo
 
 func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
 	return map[string]Application.WebsocketMessageHandler{
-		topics.MOVE: func(client *WebsocketClient.Client, message *Message.Message) error {
+		topics.PING: func(client *WebsocketClient.Client, message *Message.Message) error {
 			/* groups := app.messageBrokerClient.GetWebsocketServer().GetGroups(client.GetId())
 			if len(groups) != 1 {
 				return Utilities.NewError("Expected exactly one group for client", nil)

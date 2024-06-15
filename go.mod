@@ -1,4 +1,4 @@
-module SystemgeSampleChess
+module SystemgeSamplePingSpawner
 
 go 1.22.3
 
