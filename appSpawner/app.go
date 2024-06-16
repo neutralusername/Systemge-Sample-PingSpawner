@@ -105,11 +105,23 @@ func (app *App) New(message *Message.Message) (string, error) {
 	}
 	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerPing "+id), 5000)
 	if err != nil {
+		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
+		if err != nil {
+			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with ping broker", err).Error())
+		}
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
 	println("created ping client " + id)
 	err = pingClient.Start()
 	if err != nil {
+		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
+		if err != nil {
+			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with ping broker", err).Error())
+		}
+		_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerPing"+" "+id), 5000)
+		if err != nil {
+			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with topic resolution server", err).Error())
+		}
 		return "", Utilities.NewError("Error starting ping client", err)
 	}
 	app.activeClients[id] = pingClient
