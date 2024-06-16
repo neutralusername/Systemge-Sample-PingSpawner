@@ -13,14 +13,14 @@ import (
 type App struct {
 	client *Client.Client
 
-	activeClients map[string]*Client.Client
-	mutex         sync.Mutex
+	spawnedClients map[string]*Client.Client
+	mutex          sync.Mutex
 }
 
 func New(client *Client.Client, args []string) (Application.Application, error) {
 	app := &App{
-		client:        client,
-		activeClients: make(map[string]*Client.Client),
+		client:         client,
+		spawnedClients: make(map[string]*Client.Client),
 	}
 	return app, nil
 }
@@ -52,12 +52,12 @@ func (app *App) End(message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
-	client := app.activeClients[id]
+	client := app.spawnedClients[id]
 	err := client.Stop()
 	if err != nil {
 		return "", Utilities.NewError("Error stopping client "+id, err)
 	}
-	delete(app.activeClients, id)
+	delete(app.spawnedClients, id)
 	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
 		return "", Utilities.NewError("Error dialing ping broker", err)
@@ -82,7 +82,7 @@ func (app *App) New(message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
-	if _, ok := app.activeClients[id]; ok {
+	if _, ok := app.spawnedClients[id]; ok {
 		return "", Utilities.NewError("Client "+id+" already exists", nil)
 	}
 	pingClient := Client.New("client"+id, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger(), nil)
@@ -128,6 +128,6 @@ func (app *App) New(message *Message.Message) (string, error) {
 		}
 		return "", Utilities.NewError("Error starting ping client", err)
 	}
-	app.activeClients[id] = pingClient
+	app.spawnedClients[id] = pingClient
 	return id, nil
 }
