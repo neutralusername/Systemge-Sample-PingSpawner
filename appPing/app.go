@@ -32,6 +32,15 @@ func (app *App) OnStart() error {
 		panic(err)
 	}
 	println(app.client.GetName() + " received \"" + response.GetPayload() + "\" from: " + response.GetOrigin())
+
+	/* 	go func() {
+	// recursively spawns new clients
+		_, err = app.client.SyncMessage(topics.NEW, app.client.GetName(), "")
+		if err != nil {
+			panic(Utilities.NewError("Error sending sync message", err))
+		}
+	}() */
+
 	return nil
 }
 
