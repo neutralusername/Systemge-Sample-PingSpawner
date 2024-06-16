@@ -101,6 +101,10 @@ func (app *App) New(message *Message.Message) (string, error) {
 	}
 	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
+		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
+		if err != nil {
+			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with ping broker", err).Error())
+		}
 		return "", Utilities.NewError("Error dialing topic resolution server", err)
 	}
 	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerPing "+id), 5000)
