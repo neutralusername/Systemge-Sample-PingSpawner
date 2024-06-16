@@ -53,6 +53,9 @@ func (app *App) End(message *Message.Message) (string, error) {
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
 	client := app.spawnedClients[id]
+	if client == nil {
+		return "", Utilities.NewError("Client "+id+" does not exist", nil)
+	}
 	err := client.Stop()
 	if err != nil {
 		return "", Utilities.NewError("Error stopping client "+id, err)
