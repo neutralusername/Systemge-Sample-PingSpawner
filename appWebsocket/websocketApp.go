@@ -10,14 +10,12 @@ import (
 )
 
 type WebsocketApp struct {
-	client        *Client.Client
-	clientPingIds map[string]string
+	client *Client.Client
 }
 
 func New(messageBrokerClient *Client.Client, args []string) (Application.WebsocketApplication, error) {
 	return &WebsocketApp{
-		client:        messageBrokerClient,
-		clientPingIds: make(map[string]string),
+		client: messageBrokerClient,
 	}, nil
 }
 
@@ -51,20 +49,18 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 }
 
 func (app *WebsocketApp) OnConnectHandler(connection *WebsocketClient.Client) {
-	response, err := app.client.SyncMessage(topics.NEW, connection.GetId(), "")
+	_, err := app.client.SyncMessage(topics.NEW, connection.GetId(), connection.GetId())
 	if err != nil {
 		panic(Utilities.NewError("Error sending sync message", err))
 	}
-	app.clientPingIds[connection.GetId()] = response.GetPayload()
-	err = app.client.AsyncMessage("ping_"+response.GetPayload(), connection.GetId(), "ping")
+	err = app.client.AsyncMessage(connection.GetId(), connection.GetId(), "ping")
 	if err != nil {
 		panic(Utilities.NewError("Error sending async message", err))
 	}
 }
 
 func (app *WebsocketApp) OnDisconnectHandler(connection *WebsocketClient.Client) {
-	pingId := app.clientPingIds[connection.GetId()]
-	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), pingId)
+	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), connection.GetId())
 	if err != nil {
 		panic(err)
 	}

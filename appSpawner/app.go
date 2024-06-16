@@ -13,7 +13,6 @@ import (
 type App struct {
 	client *Client.Client
 
-	idCounter     int
 	activeClients map[string]*Client.Client
 	mutex         sync.Mutex
 }
@@ -22,7 +21,6 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 	app := &App{
 		client:        client,
 		activeClients: make(map[string]*Client.Client),
-		idCounter:     0,
 	}
 	return app, nil
 }
@@ -64,15 +62,15 @@ func (app *App) End(message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Utilities.NewError("Error dialing ping broker", err)
 	}
-	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), "ping_"+id), 5000)
+	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), message.GetPayload()), 5000)
 	if err != nil {
-		return "", Utilities.NewError("Error exchanging messages with chess broker", err)
+		return "", Utilities.NewError("Error exchanging messages with ping broker", err)
 	}
 	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
 		return "", Utilities.NewError("Error dialing topic resolution server", err)
 	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerPing ping_"+id), 5000)
+	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerPing"+" "+message.GetPayload()), 5000)
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
@@ -83,11 +81,12 @@ func (app *App) End(message *Message.Message) (string, error) {
 func (app *App) New(message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
-	id := Utilities.IntToString(app.idCounter)
-	app.idCounter++
-	pingTopic := "ping_" + id
-	pingClient := Client.New("clientPing"+id, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger(), nil)
-	pingApp, err := appPing.New(pingClient, []string{pingTopic})
+	id := message.GetPayload()
+	if _, ok := app.activeClients[id]; ok {
+		return "", Utilities.NewError("Client "+id+" already exists", nil)
+	}
+	pingClient := Client.New("client"+id, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger(), nil)
+	pingApp, err := appPing.New(pingClient, []string{id})
 	if err != nil {
 		return "", Utilities.NewError("Error creating ping app "+id, err)
 	}
@@ -96,22 +95,22 @@ func (app *App) New(message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Utilities.NewError("Error dialing ping broker", err)
 	}
-	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addAsyncTopic", app.client.GetName(), pingTopic), 5000)
+	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addAsyncTopic", app.client.GetName(), id), 5000)
 	if err != nil {
-		return "", Utilities.NewError("Error exchanging messages with chess broker", err)
+		return "", Utilities.NewError("Error exchanging messages with ping broker", err)
 	}
 	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
 		return "", Utilities.NewError("Error dialing topic resolution server", err)
 	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerPing "+pingTopic), 5000)
+	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerPing "+id), 5000)
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
 	println("created ping client " + id)
 	err = pingClient.Start()
 	if err != nil {
-		return "", Utilities.NewError("Error starting chess client", err)
+		return "", Utilities.NewError("Error starting ping client", err)
 	}
 	app.activeClients[id] = pingClient
 	return id, nil
