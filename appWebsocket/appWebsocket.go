@@ -9,29 +9,29 @@ import (
 	"SystemgeSamplePingSpawner/topics"
 )
 
-type WebsocketApp struct {
+type AppWebsocket struct {
 	client *Client.Client
 }
 
 func New(messageBrokerClient *Client.Client, args []string) (Application.WebsocketApplication, error) {
-	return &WebsocketApp{
+	return &AppWebsocket{
 		client: messageBrokerClient,
 	}, nil
 }
 
-func (app *WebsocketApp) OnStart() error {
+func (app *AppWebsocket) OnStart() error {
 	return nil
 }
 
-func (app *WebsocketApp) OnStop() error {
+func (app *AppWebsocket) OnStop() error {
 	return nil
 }
 
-func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
+func (app *AppWebsocket) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
 	return map[string]Application.AsyncMessageHandler{}
 }
 
-func (app *WebsocketApp) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
+func (app *AppWebsocket) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
 	return map[string]Application.SyncMessageHandler{
 		topics.PING: func(message *Message.Message) (string, error) {
 			println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
@@ -40,15 +40,15 @@ func (app *WebsocketApp) GetSyncMessageHandlers() map[string]Application.SyncMes
 	}
 }
 
-func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
+func (app *AppWebsocket) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
 	return map[string]Application.CustomCommandHandler{}
 }
 
-func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
+func (app *AppWebsocket) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
 	return map[string]Application.WebsocketMessageHandler{}
 }
 
-func (app *WebsocketApp) OnConnectHandler(connection *WebsocketClient.Client) {
+func (app *AppWebsocket) OnConnectHandler(connection *WebsocketClient.Client) {
 	_, err := app.client.SyncMessage(topics.NEW, connection.GetId(), connection.GetId())
 	if err != nil {
 		panic(Utilities.NewError("Error sending sync message", err))
@@ -59,7 +59,7 @@ func (app *WebsocketApp) OnConnectHandler(connection *WebsocketClient.Client) {
 	}
 }
 
-func (app *WebsocketApp) OnDisconnectHandler(connection *WebsocketClient.Client) {
+func (app *AppWebsocket) OnDisconnectHandler(connection *WebsocketClient.Client) {
 	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), connection.GetId())
 	if err != nil {
 		panic(err)
