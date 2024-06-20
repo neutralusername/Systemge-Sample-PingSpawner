@@ -13,9 +13,9 @@ type AppWebsocket struct {
 	client *Client.Client
 }
 
-func New(messageBrokerClient *Client.Client, args []string) (Application.WebsocketApplication, error) {
+func New(client *Client.Client, args []string) (Application.WebsocketApplication, error) {
 	return &AppWebsocket{
-		client: messageBrokerClient,
+		client: client,
 	}, nil
 }
 
@@ -48,21 +48,21 @@ func (app *AppWebsocket) GetWebsocketMessageHandlers() map[string]Application.We
 	return map[string]Application.WebsocketMessageHandler{}
 }
 
-func (app *AppWebsocket) OnConnectHandler(connection *WebsocketClient.Client) {
-	_, err := app.client.SyncMessage(topics.NEW, connection.GetId(), connection.GetId())
+func (app *AppWebsocket) OnConnectHandler(websocketClient *WebsocketClient.Client) {
+	_, err := app.client.SyncMessage(topics.NEW, websocketClient.GetId(), websocketClient.GetId())
 	if err != nil {
 		panic(Utilities.NewError("Error sending sync message", err))
 	}
-	err = app.client.AsyncMessage(connection.GetId(), connection.GetId(), "ping")
+	err = app.client.AsyncMessage(websocketClient.GetId(), websocketClient.GetId(), "ping")
 	if err != nil {
 		panic(Utilities.NewError("Error sending async message", err))
 	}
 }
 
-func (app *AppWebsocket) OnDisconnectHandler(connection *WebsocketClient.Client) {
-	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), connection.GetId())
+func (app *AppWebsocket) OnDisconnectHandler(websocketClient *WebsocketClient.Client) {
+	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), websocketClient.GetId())
 	if err != nil {
 		//windows seems to have issues with the sync token generation.. sometimes it will generate two similar tokens in sequence. i assume the system time is not accurate enough for very fast token generation
-		panic(err)
+		panic(Utilities.NewError("Error sending sync message", err))
 	}
 }
