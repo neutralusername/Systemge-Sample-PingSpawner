@@ -30,8 +30,8 @@ func main() {
 	}
 	clientSpawner := Module.NewClient("clientSpawner", TOPICRESOLUTIONSERVER_ADDRESS, ERROR_LOG_FILE_PATH, appSpawner.New, nil)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
-		clientSpawner,
 		Module.NewWebsocketClient("clientWebsocket", TOPICRESOLUTIONSERVER_ADDRESS, ERROR_LOG_FILE_PATH, "/ws", WEBSOCKET_PORT, "", "", appWebsocket.New, nil),
+		clientSpawner,
 		Module.NewHTTPServerFromConfig("httpServe.systemge", ERROR_LOG_FILE_PATH),
 	), clientSpawner.GetApplication().GetCustomCommandHandlers())
 }
