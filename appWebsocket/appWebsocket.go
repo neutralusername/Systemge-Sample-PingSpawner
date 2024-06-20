@@ -62,6 +62,7 @@ func (app *AppWebsocket) OnConnectHandler(connection *WebsocketClient.Client) {
 func (app *AppWebsocket) OnDisconnectHandler(connection *WebsocketClient.Client) {
 	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), connection.GetId())
 	if err != nil {
+		//windows seems to have issues with the sync token generation.. sometimes it will generate two similar tokens in sequence. i assume the system time is not accurate enough for very fast token generation
 		panic(err)
 	}
 }
