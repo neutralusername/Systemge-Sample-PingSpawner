@@ -29,9 +29,25 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientSpawner := Module.NewClient("clientSpawner", TOPICRESOLUTIONSERVER_ADDRESS, ERROR_LOG_FILE_PATH, appSpawner.New, nil)
+	clientSpawner := Module.NewClient(&Module.ClientConfig{
+		Name:            "clientSpawner",
+		ResolverAddress: TOPICRESOLUTIONSERVER_ADDRESS,
+		LoggerPath:      ERROR_LOG_FILE_PATH,
+	}, appSpawner.New, nil)
+	clientWebsocketHTTP := Module.NewCompositeClientWebsocketHTTP(&Module.ClientConfig{
+		Name:             "clientWebsocket",
+		ResolverAddress:  TOPICRESOLUTIONSERVER_ADDRESS,
+		LoggerPath:       ERROR_LOG_FILE_PATH,
+		WebsocketPattern: "/ws",
+		WebsocketPort:    WEBSOCKET_PORT,
+		WebsocketCert:    "",
+		WebsocketKey:     "",
+		HTTPPort:         HTTP_PORT,
+		HTTPCert:         "",
+		HTTPKey:          "",
+	}, appWebsocketHTTP.New, nil)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
-		Module.NewCompositeClientWebsocketHTTP("clientWebsocket", TOPICRESOLUTIONSERVER_ADDRESS, ERROR_LOG_FILE_PATH, "/ws", WEBSOCKET_PORT, "", "", HTTP_PORT, "", "", appWebsocketHTTP.New, nil),
+		clientWebsocketHTTP,
 		clientSpawner,
 	), clientSpawner.GetApplication().GetCustomCommandHandlers())
 }
