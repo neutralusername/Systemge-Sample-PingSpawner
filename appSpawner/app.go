@@ -88,7 +88,7 @@ func (app *App) New(message *Message.Message) (string, error) {
 	if _, ok := app.spawnedClients[id]; ok {
 		return "", Utilities.NewError("Client "+id+" already exists", nil)
 	}
-	pingClient := Client.New("client"+id, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger())
+	pingClient := Client.New("client"+id, app.client.GetResolverResolution(), app.client.GetLogger())
 	pingApp, err := appPing.New(pingClient, []string{id})
 	if err != nil {
 		return "", Utilities.NewError("Error creating ping app "+id, err)
