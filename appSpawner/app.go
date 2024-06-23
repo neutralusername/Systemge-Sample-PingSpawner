@@ -61,9 +61,9 @@ func (app *App) End(message *Message.Message) (string, error) {
 		return "", Utilities.NewError("Error stopping client "+id, err)
 	}
 	delete(app.spawnedClients, id)
-	err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err = app.client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
+		app.client.GetLogger().Log(Utilities.NewError("Error removing async topic \""+id+"\"", err).Error())
 	}
 	err = app.client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
@@ -86,23 +86,23 @@ func (app *App) New(message *Message.Message) (string, error) {
 		return "", Utilities.NewError("Error creating ping app "+id, err)
 	}
 	pingClient.SetApplication(pingApp)
-	err = app.client.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err = app.client.AddAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		return "", Utilities.NewError("Error adding sync topic \""+id+"\"", err)
+		return "", Utilities.NewError("Error adding async topic \""+id+"\"", err)
 	}
 	err = app.client.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerPing", id)
 	if err != nil {
-		err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = app.client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
+			app.client.GetLogger().Log(Utilities.NewError("Error removing async topic \""+id+"\"", err).Error())
 		}
 		return "", Utilities.NewError("Error registering topic", err)
 	}
 	err = pingClient.Start()
 	if err != nil {
-		err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = app.client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
+			app.client.GetLogger().Log(Utilities.NewError("Error removing async topic \""+id+"\"", err).Error())
 		}
 		err = app.client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
