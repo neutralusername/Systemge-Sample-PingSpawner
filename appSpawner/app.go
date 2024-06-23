@@ -69,7 +69,7 @@ func (app *App) End(message *Message.Message) (string, error) {
 	if err != nil {
 		app.client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
 	}
-	println("ended ping client " + id)
+	//println("ended ping client " + id)
 	return "", nil
 }
 
@@ -110,7 +110,7 @@ func (app *App) New(message *Message.Message) (string, error) {
 		}
 		return "", Utilities.NewError("Error starting client", err)
 	}
-	println("created ping client " + id)
+	//println("created ping client " + id)
 	app.spawnedClients[id] = pingClient
 	return id, nil
 }

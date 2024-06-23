@@ -28,4 +28,5 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(websocketClient *WebsocketClien
 		//windows seems to have issues with the sync token generation.. sometimes it will generate two similar tokens in sequence. i assume the system time is not accurate enough for very fast token generation
 		panic(Utilities.NewError("Error sending sync message", err))
 	}
+	app.client.RemoveTopicResolution(websocketClient.GetId())
 }

@@ -27,11 +27,11 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 }
 
 func (app *App) OnStart() error {
-	response, err := app.client.SyncMessage(topics.PING, app.client.GetName(), "ping")
+	_, err := app.client.SyncMessage(topics.PING, app.client.GetName(), "ping")
 	if err != nil {
 		panic(err)
 	}
-	println(app.client.GetName() + " received \"" + response.GetPayload() + "\" from: " + response.GetOrigin())
+	//println(app.client.GetName() + " received \"" + response.GetPayload() + "\" from: " + response.GetOrigin())
 	return nil
 }
 
@@ -42,7 +42,7 @@ func (app *App) OnStop() error {
 func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
 	return map[string]Application.AsyncMessageHandler{
 		app.id: func(message *Message.Message) error {
-			println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
+			//	println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
 			return nil
 		},
 	}
