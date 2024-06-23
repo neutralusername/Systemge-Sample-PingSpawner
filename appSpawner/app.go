@@ -61,21 +61,13 @@ func (app *App) End(message *Message.Message) (string, error) {
 		return "", Utilities.NewError("Error stopping client "+id, err)
 	}
 	delete(app.spawnedClients, id)
-	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
+	err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		return "", Utilities.NewError("Error dialing ping broker", err)
+		app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
 	}
-	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), message.GetPayload()), 5000)
+	err = app.client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		return "", Utilities.NewError("Error exchanging messages with ping broker", err)
-	}
-	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
-	if err != nil {
-		return "", Utilities.NewError("Error dialing topic resolution server", err)
-	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerPing"+" "+message.GetPayload()), 5000)
-	if err != nil {
-		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
+		app.client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
 	}
 	println("ended ping client " + id)
 	return "", nil
@@ -94,43 +86,31 @@ func (app *App) New(message *Message.Message) (string, error) {
 		return "", Utilities.NewError("Error creating ping app "+id, err)
 	}
 	pingClient.SetApplication(pingApp)
-	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
+	err = app.client.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		return "", Utilities.NewError("Error dialing ping broker", err)
+		return "", Utilities.NewError("Error adding sync topic \""+id+"\"", err)
 	}
-	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addAsyncTopic", app.client.GetName(), id), 5000)
+	err = app.client.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerPing", id)
 	if err != nil {
-		return "", Utilities.NewError("Error exchanging messages with ping broker", err)
-	}
-	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
-	if err != nil {
-		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
+		err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with ping broker", err).Error())
+			app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
 		}
-		return "", Utilities.NewError("Error dialing topic resolution server", err)
+		return "", Utilities.NewError("Error registering topic", err)
 	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerPing "+id), 5000)
-	if err != nil {
-		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
-		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with ping broker", err).Error())
-		}
-		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
-	}
-	println("created ping client " + id)
 	err = pingClient.Start()
 	if err != nil {
-		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
+		err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with ping broker", err).Error())
+			app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
 		}
-		_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerPing"+" "+id), 5000)
+		err = app.client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with topic resolution server", err).Error())
+			app.client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
 		}
-		return "", Utilities.NewError("Error starting ping client", err)
+		return "", Utilities.NewError("Error starting client", err)
 	}
+	println("created ping client " + id)
 	app.spawnedClients[id] = pingClient
 	return id, nil
 }
