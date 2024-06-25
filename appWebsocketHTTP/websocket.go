@@ -3,7 +3,6 @@ package appWebsocketHTTP
 import (
 	"Systemge/Client"
 	"Systemge/Utilities"
-	"Systemge/WebsocketClient"
 	"SystemgeSamplePingSpawner/topics"
 )
 
@@ -11,7 +10,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Client.Web
 	return map[string]Client.WebsocketMessageHandler{}
 }
 
-func (app *AppWebsocketHTTP) OnConnectHandler(client *Client.Client, websocketClient *WebsocketClient.Client) {
+func (app *AppWebsocketHTTP) OnConnectHandler(client *Client.Client, websocketClient *Client.WebsocketClient) {
 	_, err := client.SyncMessage(topics.NEW, websocketClient.GetId(), websocketClient.GetId())
 	if err != nil {
 		panic(Utilities.NewError("Error sending sync message", err))
@@ -22,7 +21,7 @@ func (app *AppWebsocketHTTP) OnConnectHandler(client *Client.Client, websocketCl
 	}
 }
 
-func (app *AppWebsocketHTTP) OnDisconnectHandler(client *Client.Client, websocketClient *WebsocketClient.Client) {
+func (app *AppWebsocketHTTP) OnDisconnectHandler(client *Client.Client, websocketClient *Client.WebsocketClient) {
 	_, err := client.SyncMessage(topics.END, client.GetName(), websocketClient.GetId())
 	if err != nil {
 		//windows seems to have issues with the sync token generation.. sometimes it will generate two similar tokens in sequence. i assume the system time is not accurate enough for very fast token generation
