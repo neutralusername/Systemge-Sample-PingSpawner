@@ -1,57 +1,48 @@
 package appPing
 
 import (
-	"Systemge/Application"
 	"Systemge/Client"
 	"Systemge/Message"
-	"Systemge/Utilities"
 	"SystemgeSamplePingSpawner/topics"
 )
 
 type App struct {
-	client *Client.Client
-
 	id string
 }
 
-func New(client *Client.Client, args []string) (Application.Application, error) {
-	if len(args) != 1 {
-		return nil, Utilities.NewError("Expected 1 argument", nil)
-	}
+func New(id string) Client.Application {
 	app := &App{
-		client: client,
-
-		id: args[0],
+		id: id,
 	}
-	return app, nil
+	return app
 }
 
-func (app *App) OnStart() error {
-	_, err := app.client.SyncMessage(topics.PING, app.client.GetName(), "ping")
+func (app *App) OnStart(client *Client.Client) error {
+	response, err := client.SyncMessage(topics.PING, client.GetName(), "ping")
 	if err != nil {
 		panic(err)
 	}
-	//println(app.client.GetName() + " received \"" + response.GetPayload() + "\" from: " + response.GetOrigin())
+	println(client.GetName() + " received \"" + response.GetPayload() + "\" from: " + response.GetOrigin())
 	return nil
 }
 
-func (app *App) OnStop() error {
+func (app *App) OnStop(client *Client.Client) error {
 	return nil
 }
 
-func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
-	return map[string]Application.AsyncMessageHandler{
-		app.id: func(message *Message.Message) error {
-			//	println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
+func (app *App) GetAsyncMessageHandlers() map[string]Client.AsyncMessageHandler {
+	return map[string]Client.AsyncMessageHandler{
+		app.id: func(client *Client.Client, message *Message.Message) error {
+			println(client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
 			return nil
 		},
 	}
 }
 
-func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
-	return map[string]Application.SyncMessageHandler{}
+func (app *App) GetSyncMessageHandlers() map[string]Client.SyncMessageHandler {
+	return map[string]Client.SyncMessageHandler{}
 }
 
-func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
-	return map[string]Application.CustomCommandHandler{}
+func (app *App) GetCustomCommandHandlers() map[string]Client.CustomCommandHandler {
+	return map[string]Client.CustomCommandHandler{}
 }

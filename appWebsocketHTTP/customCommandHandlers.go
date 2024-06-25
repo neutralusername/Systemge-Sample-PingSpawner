@@ -1,7 +1,7 @@
 package appWebsocketHTTP
 
-import "Systemge/Application"
+import "Systemge/Client"
 
-func (app *AppWebsocketHTTP) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
-	return map[string]Application.CustomCommandHandler{}
+func (app *AppWebsocketHTTP) GetCustomCommandHandlers() map[string]Client.CustomCommandHandler {
+	return map[string]Client.CustomCommandHandler{}
 }
