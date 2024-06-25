@@ -78,12 +78,11 @@ func (app *App) New(client *Client.Client, message *Message.Message) (string, er
 		return "", Utilities.NewError("Client "+id+" already exists", nil)
 	}
 	pingClientConfig := &Client.Config{
-		Name:                       id,
-		LoggerPath:                 "error.log",
-		HandleMessagesConcurrently: true,
-		ResolverAddress:            client.GetResolverAddress(),
-		ResolverNameIndication:     client.GetResolverNameIndication(),
-		ResolverTLSCert:            client.GetResolverTLSCert(),
+		Name:                   id,
+		LoggerPath:             "error.log",
+		ResolverAddress:        client.GetResolverAddress(),
+		ResolverNameIndication: client.GetResolverNameIndication(),
+		ResolverTLSCert:        client.GetResolverTLSCert(),
 	}
 	pingApp := appPing.New(id)
 	pingClient := Module.NewClient(pingClientConfig, pingApp, nil, nil)
