@@ -2,6 +2,7 @@ package appSpawner
 
 import (
 	"Systemge/Client"
+	"Systemge/Error"
 	"Systemge/Message"
 	"Systemge/Module"
 	"Systemge/Utilities"
@@ -51,20 +52,20 @@ func (app *App) End(client *Client.Client, message *Message.Message) (string, er
 	id := message.GetPayload()
 	spawnedClient := app.spawnedClients[id]
 	if spawnedClient == nil {
-		return "", Utilities.NewError("Client "+id+" does not exist", nil)
+		return "", Error.New("Client "+id+" does not exist", nil)
 	}
 	err := spawnedClient.Stop()
 	if err != nil {
-		return "", Utilities.NewError("Error stopping client "+id, err)
+		return "", Error.New("Error stopping client "+id, err)
 	}
 	delete(app.spawnedClients, id)
 	err = client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		client.GetLogger().Log(Utilities.NewError("Error removing async topic \""+id+"\"", err).Error())
+		client.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
 	}
 	err = client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
+		client.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 	}
 	println("ended ping client " + id)
 	return "", nil
@@ -75,7 +76,7 @@ func (app *App) New(client *Client.Client, message *Message.Message) (string, er
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
 	if _, ok := app.spawnedClients[id]; ok {
-		return "", Utilities.NewError("Client "+id+" already exists", nil)
+		return "", Error.New("Client "+id+" already exists", nil)
 	}
 	pingClientConfig := &Client.Config{
 		Name:                   id,
@@ -89,27 +90,27 @@ func (app *App) New(client *Client.Client, message *Message.Message) (string, er
 
 	err := client.AddAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		return "", Utilities.NewError("Error adding async topic \""+id+"\"", err)
+		return "", Error.New("Error adding async topic \""+id+"\"", err)
 	}
 	err = client.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerPing", id)
 	if err != nil {
 		err = client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Utilities.NewError("Error removing async topic \""+id+"\"", err).Error())
+			client.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
 		}
-		return "", Utilities.NewError("Error registering topic", err)
+		return "", Error.New("Error registering topic", err)
 	}
 	err = pingClient.Start()
 	if err != nil {
 		err = client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Utilities.NewError("Error removing async topic \""+id+"\"", err).Error())
+			client.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
 		}
 		err = client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
+			client.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 		}
-		return "", Utilities.NewError("Error starting client", err)
+		return "", Error.New("Error starting client", err)
 	}
 	println("created ping client " + id)
 	app.spawnedClients[id] = pingClient
