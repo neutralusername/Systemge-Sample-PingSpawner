@@ -1,10 +1,10 @@
 package appSpawner
 
 import (
-	"Systemge/Client"
 	"Systemge/Error"
 	"Systemge/Message"
 	"Systemge/Module"
+	"Systemge/Node"
 	"Systemge/Utilities"
 	"SystemgeSamplePingSpawner/appPing"
 	"SystemgeSamplePingSpawner/topics"
@@ -12,47 +12,47 @@ import (
 )
 
 type App struct {
-	spawnedClients map[string]*Client.Client
+	spawnedClients map[string]*Node.Node
 	mutex          sync.Mutex
 }
 
-func New() Client.Application {
+func New() Node.Application {
 	app := &App{
-		spawnedClients: make(map[string]*Client.Client),
+		spawnedClients: make(map[string]*Node.Node),
 	}
 	return app
 }
 
-func (app *App) OnStart(client *Client.Client) error {
+func (app *App) OnStart(client *Node.Node) error {
 	return nil
 }
 
-func (app *App) OnStop(client *Client.Client) error {
+func (app *App) OnStop(client *Node.Node) error {
 	return nil
 }
 
-func (app *App) GetAsyncMessageHandlers() map[string]Client.AsyncMessageHandler {
-	return map[string]Client.AsyncMessageHandler{}
+func (app *App) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
+	return map[string]Node.AsyncMessageHandler{}
 }
 
-func (app *App) GetSyncMessageHandlers() map[string]Client.SyncMessageHandler {
-	return map[string]Client.SyncMessageHandler{
+func (app *App) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
+	return map[string]Node.SyncMessageHandler{
 		topics.NEW: app.New,
 		topics.END: app.End,
 	}
 }
 
-func (app *App) GetCustomCommandHandlers() map[string]Client.CustomCommandHandler {
-	return map[string]Client.CustomCommandHandler{}
+func (app *App) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler {
+	return map[string]Node.CustomCommandHandler{}
 }
 
-func (app *App) End(client *Client.Client, message *Message.Message) (string, error) {
+func (app *App) End(client *Node.Node, message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
 	spawnedClient := app.spawnedClients[id]
 	if spawnedClient == nil {
-		return "", Error.New("Client "+id+" does not exist", nil)
+		return "", Error.New("Node "+id+" does not exist", nil)
 	}
 	err := spawnedClient.Stop()
 	if err != nil {
@@ -71,14 +71,14 @@ func (app *App) End(client *Client.Client, message *Message.Message) (string, er
 	return "", nil
 }
 
-func (app *App) New(client *Client.Client, message *Message.Message) (string, error) {
+func (app *App) New(client *Node.Node, message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
 	if _, ok := app.spawnedClients[id]; ok {
-		return "", Error.New("Client "+id+" already exists", nil)
+		return "", Error.New("Node "+id+" already exists", nil)
 	}
-	pingClientConfig := &Client.Config{
+	pingClientConfig := &Node.Config{
 		Name:                   id,
 		LoggerPath:             "error.log",
 		ResolverAddress:        client.GetResolverAddress(),

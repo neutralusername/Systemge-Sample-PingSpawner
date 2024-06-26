@@ -1,18 +1,18 @@
 package appWebsocketHTTP
 
-import "Systemge/Client"
+import "Systemge/Node"
 
 type AppWebsocketHTTP struct {
 }
 
-func New() Client.WebsocketHTTPApplication {
+func New() Node.WebsocketHTTPApplication {
 	return &AppWebsocketHTTP{}
 }
 
-func (app *AppWebsocketHTTP) OnStart(client *Client.Client) error {
+func (app *AppWebsocketHTTP) OnStart(client *Node.Node) error {
 	return nil
 }
 
-func (app *AppWebsocketHTTP) OnStop(client *Client.Client) error {
+func (app *AppWebsocketHTTP) OnStop(client *Node.Node) error {
 	return nil
 }

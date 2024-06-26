@@ -1,14 +1,14 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Client"
 	"Systemge/Message"
+	"Systemge/Node"
 	"SystemgeSamplePingSpawner/topics"
 )
 
-func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Client.SyncMessageHandler {
-	return map[string]Client.SyncMessageHandler{
-		topics.PING: func(client *Client.Client, message *Message.Message) (string, error) {
+func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
+	return map[string]Node.SyncMessageHandler{
+		topics.PING: func(client *Node.Node, message *Message.Message) (string, error) {
 			println(client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
 			return "pong", nil
 		},

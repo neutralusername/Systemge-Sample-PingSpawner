@@ -1,7 +1,7 @@
 package appWebsocketHTTP
 
-import "Systemge/Client"
+import "Systemge/Node"
 
-func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Client.AsyncMessageHandler {
-	return map[string]Client.AsyncMessageHandler{}
+func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
+	return map[string]Node.AsyncMessageHandler{}
 }
