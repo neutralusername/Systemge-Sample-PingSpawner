@@ -17,23 +17,23 @@ func New(id string) Node.Application {
 	return app
 }
 
-func (app *App) OnStart(client *Node.Node) error {
-	response, err := client.SyncMessage(topics.PING, client.GetName(), "ping")
+func (app *App) OnStart(node *Node.Node) error {
+	response, err := node.SyncMessage(topics.PING, node.GetName(), "ping")
 	if err != nil {
 		panic(err)
 	}
-	println(client.GetName() + " received \"" + response.GetPayload() + "\" from: " + response.GetOrigin())
+	println(node.GetName() + " received \"" + response.GetPayload() + "\" from: " + response.GetOrigin())
 	return nil
 }
 
-func (app *App) OnStop(client *Node.Node) error {
+func (app *App) OnStop(node *Node.Node) error {
 	return nil
 }
 
 func (app *App) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
 	return map[string]Node.AsyncMessageHandler{
-		app.id: func(client *Node.Node, message *Message.Message) error {
-			println(client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
+		app.id: func(node *Node.Node, message *Message.Message) error {
+			println(node.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
 			return nil
 		},
 	}

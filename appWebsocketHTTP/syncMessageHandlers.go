@@ -8,8 +8,8 @@ import (
 
 func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
 	return map[string]Node.SyncMessageHandler{
-		topics.PING: func(client *Node.Node, message *Message.Message) (string, error) {
-			println(client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
+		topics.PING: func(node *Node.Node, message *Message.Message) (string, error) {
+			println(node.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
 			return "pong", nil
 		},
 	}

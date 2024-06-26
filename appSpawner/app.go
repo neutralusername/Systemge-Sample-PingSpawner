@@ -12,22 +12,22 @@ import (
 )
 
 type App struct {
-	spawnedClients map[string]*Node.Node
-	mutex          sync.Mutex
+	spawnedNodes map[string]*Node.Node
+	mutex        sync.Mutex
 }
 
 func New() Node.Application {
 	app := &App{
-		spawnedClients: make(map[string]*Node.Node),
+		spawnedNodes: make(map[string]*Node.Node),
 	}
 	return app
 }
 
-func (app *App) OnStart(client *Node.Node) error {
+func (app *App) OnStart(node *Node.Node) error {
 	return nil
 }
 
-func (app *App) OnStop(client *Node.Node) error {
+func (app *App) OnStop(node *Node.Node) error {
 	return nil
 }
 
@@ -46,73 +46,73 @@ func (app *App) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler 
 	return map[string]Node.CustomCommandHandler{}
 }
 
-func (app *App) End(client *Node.Node, message *Message.Message) (string, error) {
+func (app *App) End(node *Node.Node, message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
-	spawnedClient := app.spawnedClients[id]
-	if spawnedClient == nil {
+	spawnedNode := app.spawnedNodes[id]
+	if spawnedNode == nil {
 		return "", Error.New("Node "+id+" does not exist", nil)
 	}
-	err := spawnedClient.Stop()
+	err := spawnedNode.Stop()
 	if err != nil {
-		return "", Error.New("Error stopping client "+id, err)
+		return "", Error.New("Error stopping node "+id, err)
 	}
-	delete(app.spawnedClients, id)
-	err = client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	delete(app.spawnedNodes, id)
+	err = node.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		client.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
+		node.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
 	}
-	err = client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err = node.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		client.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
+		node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 	}
-	println("ended ping client " + id)
+	println("ended pingNode " + id)
 	return "", nil
 }
 
-func (app *App) New(client *Node.Node, message *Message.Message) (string, error) {
+func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
-	if _, ok := app.spawnedClients[id]; ok {
+	if _, ok := app.spawnedNodes[id]; ok {
 		return "", Error.New("Node "+id+" already exists", nil)
 	}
-	pingClientConfig := &Node.Config{
+	pingNodeConfig := &Node.Config{
 		Name:                   id,
 		LoggerPath:             "error.log",
-		ResolverAddress:        client.GetResolverAddress(),
-		ResolverNameIndication: client.GetResolverNameIndication(),
-		ResolverTLSCert:        client.GetResolverTLSCert(),
+		ResolverAddress:        node.GetResolverAddress(),
+		ResolverNameIndication: node.GetResolverNameIndication(),
+		ResolverTLSCert:        node.GetResolverTLSCert(),
 	}
 	pingApp := appPing.New(id)
-	pingClient := Module.NewClient(pingClientConfig, pingApp, nil, nil)
+	pingNode := Module.NewNode(pingNodeConfig, pingApp, nil, nil)
 
-	err := client.AddAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err := node.AddAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
 		return "", Error.New("Error adding async topic \""+id+"\"", err)
 	}
-	err = client.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerPing", id)
+	err = node.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerPing", id)
 	if err != nil {
-		err = client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = node.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
+			node.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
 		}
 		return "", Error.New("Error registering topic", err)
 	}
-	err = pingClient.Start()
+	err = pingNode.Start()
 	if err != nil {
-		err = client.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = node.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
+			node.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
 		}
-		err = client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = node.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
+			node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 		}
-		return "", Error.New("Error starting client", err)
+		return "", Error.New("Error starting node", err)
 	}
-	println("created ping client " + id)
-	app.spawnedClients[id] = pingClient
+	println("created pingNode " + id)
+	app.spawnedNodes[id] = pingNode
 	return id, nil
 }
