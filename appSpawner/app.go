@@ -78,12 +78,9 @@ func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	if _, ok := app.spawnedNodes[id]; ok {
 		return "", Error.New("Node "+id+" already exists", nil)
 	}
-	pingNodeConfig := &Node.Config{
-		Name:                   id,
-		LoggerPath:             "error.log",
-		ResolverAddress:        node.GetResolverAddress(),
-		ResolverNameIndication: node.GetResolverNameIndication(),
-		ResolverTLSCert:        node.GetResolverTLSCert(),
+	pingNodeConfig := &Node.NodeConfig{
+		Name:       id,
+		LoggerPath: "error.log",
 	}
 	pingApp := appPing.New(id)
 	pingNode := Module.NewNode(pingNodeConfig, pingApp, nil, nil)
@@ -115,4 +112,13 @@ func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	println("created pingNode " + id)
 	app.spawnedNodes[id] = pingNode
 	return id, nil
+}
+
+func (app *App) GetApplicationConfig() Node.ApplicationConfig {
+	return Node.ApplicationConfig{
+		ResolverAddress:            "127.0.0.1:60000",
+		ResolverNameIndication:     "127.0.0.1",
+		ResolverTLSCert:            Utilities.GetFileContent("MyCertificate.crt"),
+		HandleMessagesSequentially: false,
+	}
 }

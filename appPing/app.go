@@ -3,6 +3,7 @@ package appPing
 import (
 	"Systemge/Message"
 	"Systemge/Node"
+	"Systemge/Utilities"
 	"SystemgeSamplePingSpawner/topics"
 )
 
@@ -45,4 +46,13 @@ func (app *App) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
 
 func (app *App) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler {
 	return map[string]Node.CustomCommandHandler{}
+}
+
+func (app *App) GetApplicationConfig() Node.ApplicationConfig {
+	return Node.ApplicationConfig{
+		ResolverAddress:            "127.0.0.1:60000",
+		ResolverNameIndication:     "127.0.0.1",
+		ResolverTLSCert:            Utilities.GetFileContent("MyCertificate.crt"),
+		HandleMessagesSequentially: false,
+	}
 }

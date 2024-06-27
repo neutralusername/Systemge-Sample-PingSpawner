@@ -7,3 +7,11 @@ func (app *AppWebsocketHTTP) GetHTTPRequestHandlers() map[string]Node.HTTPReques
 		"/": Node.SendDirectory("../frontend"),
 	}
 }
+
+func (app *AppWebsocketHTTP) GetHTTPComponentConfig() Node.HTTPComponentConfig {
+	return Node.HTTPComponentConfig{
+		Port:        ":8080",
+		TlsCertPath: "",
+		TlsKeyPath:  "",
+	}
+}
