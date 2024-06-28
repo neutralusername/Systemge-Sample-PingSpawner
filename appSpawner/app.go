@@ -4,8 +4,8 @@ import (
 	"Systemge/Config"
 	"Systemge/Error"
 	"Systemge/Message"
-	"Systemge/Module"
 	"Systemge/Node"
+	"Systemge/Resolution"
 	"Systemge/Utilities"
 	"SystemgeSamplePingSpawner/appPing"
 	"SystemgeSamplePingSpawner/topics"
@@ -64,7 +64,7 @@ func (app *App) End(node *Node.Node, message *Message.Message) (string, error) {
 	if err != nil {
 		node.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
 	}
-	err = node.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err = node.RemoveResolverTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
 		node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 	}
@@ -79,7 +79,7 @@ func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	if _, ok := app.spawnedNodes[id]; ok {
 		return "", Error.New("Node "+id+" already exists", nil)
 	}
-	pingNode := Module.NewNode(Config.Node{
+	pingNode := Node.New(Config.Node{
 		Name:       id,
 		LoggerPath: "error.log",
 	}, appPing.New(id), nil, nil)
@@ -88,23 +88,23 @@ func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Error.New("Error adding async topic \""+id+"\"", err)
 	}
-	err = node.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerPing", id)
+	err = node.AddResolverTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), *Resolution.New("brokerPing", "127.0.0.1:60007", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt")), id)
 	if err != nil {
-		err = node.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
-		if err != nil {
-			node.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
+		errRemoveAsync := node.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		if errRemoveAsync != nil {
+			node.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", errRemoveAsync).Error())
 		}
 		return "", Error.New("Error registering topic", err)
 	}
 	err = pingNode.Start()
 	if err != nil {
-		err = node.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
-		if err != nil {
-			node.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", err).Error())
+		errRemoveAsync := node.RemoveAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		if errRemoveAsync != nil {
+			node.GetLogger().Log(Error.New("Error removing async topic \""+id+"\"", errRemoveAsync).Error())
 		}
-		err = node.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
-		if err != nil {
-			node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
+		errRemoveResolver := node.RemoveResolverTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		if errRemoveResolver != nil {
+			node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", errRemoveResolver).Error())
 		}
 		return "", Error.New("Error starting node", err)
 	}

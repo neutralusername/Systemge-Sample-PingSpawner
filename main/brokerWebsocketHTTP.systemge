@@ -1,0 +1,6 @@
+# broker
+_logs ./error.log
+_broker :60003 ./MyCertificate.crt ./MyKey.key
+_config :60004 ./MyCertificate.crt ./MyKey.key
+
+ping sync

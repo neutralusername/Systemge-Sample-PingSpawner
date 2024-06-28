@@ -1,8 +1,11 @@
 package main
 
 import (
+	"Systemge/Broker"
 	"Systemge/Config"
 	"Systemge/Module"
+	"Systemge/Node"
+	"Systemge/Resolver"
 	"SystemgeSamplePingSpawner/appSpawner"
 	"SystemgeSamplePingSpawner/appWebsocketHTTP"
 )
@@ -16,33 +19,31 @@ const HTTP_PORT = ":8080"
 const ERROR_LOG_FILE_PATH = "error.log"
 
 func main() {
-	err := Module.NewResolverFromConfig("resolver.systemge", ERROR_LOG_FILE_PATH).Start()
+	err := Resolver.New(Module.ParseResolverConfigFromFile("resolver.systemge")).Start()
 	if err != nil {
 		panic(err)
 	}
-	err = Module.NewBrokerFromConfig("brokerSpawner.systemge", ERROR_LOG_FILE_PATH).Start()
+	err = Broker.New(Module.ParseBrokerConfigFromFile("brokerSpawner.systemge")).Start()
 	if err != nil {
 		panic(err)
 	}
-	err = Module.NewBrokerFromConfig("brokerWebsocket.systemge", ERROR_LOG_FILE_PATH).Start()
+	err = Broker.New(Module.ParseBrokerConfigFromFile("brokerWebsocketHTTP.systemge")).Start()
 	if err != nil {
 		panic(err)
 	}
-	err = Module.NewBrokerFromConfig("brokerPing.systemge", ERROR_LOG_FILE_PATH).Start()
+	err = Broker.New(Module.ParseBrokerConfigFromFile("brokerPing.systemge")).Start()
 	if err != nil {
 		panic(err)
 	}
-	nodeSpawner := Module.NewNode(Config.Node{
-		Name:       "nodeSpawner",
-		LoggerPath: ERROR_LOG_FILE_PATH,
-	}, appSpawner.New(), nil, nil)
 	applicationWebsocketHTTP := appWebsocketHTTP.New()
-	nodeWebsocketHTTP := Module.NewNode(Config.Node{
-		Name:       "nodeWebsocketHTTP",
-		LoggerPath: ERROR_LOG_FILE_PATH,
-	}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
-		nodeWebsocketHTTP,
-		nodeSpawner,
+		Node.New(Config.Node{
+			Name:       "nodeWebsocketHTTP",
+			LoggerPath: ERROR_LOG_FILE_PATH,
+		}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP),
+		Node.New(Config.Node{
+			Name:       "nodeSpawner",
+			LoggerPath: ERROR_LOG_FILE_PATH,
+		}, appSpawner.New(), nil, nil),
 	))
 }

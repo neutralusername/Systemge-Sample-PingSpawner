@@ -1,5 +1,0 @@
-# broker
-broker :60003 ./MyCertificate.crt ./MyKey.key
-config :60004 ./MyCertificate.crt ./MyKey.key
-
-ping sync
