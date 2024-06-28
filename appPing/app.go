@@ -21,6 +21,7 @@ func New(id string) Node.Application {
 }
 
 func (app *App) OnStart(node *Node.Node) error {
+	println(node.GetName() + " started")
 	response, err := node.SyncMessage(topics.PING, node.GetName(), "ping")
 	if err != nil {
 		panic(err)
@@ -30,6 +31,7 @@ func (app *App) OnStart(node *Node.Node) error {
 }
 
 func (app *App) OnStop(node *Node.Node) error {
+	println(node.GetName() + " stopped")
 	return nil
 }
 
