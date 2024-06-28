@@ -1,6 +1,7 @@
 package appPing
 
 import (
+	"Systemge/Config"
 	"Systemge/Message"
 	"Systemge/Node"
 	"Systemge/Utilities"
@@ -48,8 +49,8 @@ func (app *App) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler 
 	return map[string]Node.CustomCommandHandler{}
 }
 
-func (app *App) GetApplicationConfig() Node.ApplicationConfig {
-	return Node.ApplicationConfig{
+func (app *App) GetApplicationConfig() Config.Application {
+	return Config.Application{
 		ResolverAddress:            "127.0.0.1:60000",
 		ResolverNameIndication:     "127.0.0.1",
 		ResolverTLSCert:            Utilities.GetFileContent("MyCertificate.crt"),

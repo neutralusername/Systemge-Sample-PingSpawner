@@ -1,6 +1,7 @@
 package appSpawner
 
 import (
+	"Systemge/Config"
 	"Systemge/Error"
 	"Systemge/Message"
 	"Systemge/Module"
@@ -78,7 +79,7 @@ func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	if _, ok := app.spawnedNodes[id]; ok {
 		return "", Error.New("Node "+id+" already exists", nil)
 	}
-	pingNodeConfig := &Node.NodeConfig{
+	pingNodeConfig := &Config.Node{
 		Name:       id,
 		LoggerPath: "error.log",
 	}
@@ -114,8 +115,8 @@ func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	return id, nil
 }
 
-func (app *App) GetApplicationConfig() Node.ApplicationConfig {
-	return Node.ApplicationConfig{
+func (app *App) GetApplicationConfig() Config.Application {
+	return Config.Application{
 		ResolverAddress:            "127.0.0.1:60000",
 		ResolverNameIndication:     "127.0.0.1",
 		ResolverTLSCert:            Utilities.GetFileContent("MyCertificate.crt"),
