@@ -40,10 +40,6 @@ func main() {
 	}
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		Node.New(Config.Node{
-			Name:       "nodeWebsocketHTTP",
-			LoggerPath: ERROR_LOG_FILE_PATH,
-		}, appWebsocketHTTP.New()),
-		Node.New(Config.Node{
 			Name:       "nodePingSpawner",
 			LoggerPath: ERROR_LOG_FILE_PATH,
 		}, Spawner.New(Config.Application{
@@ -55,5 +51,9 @@ func main() {
 			BrokerConfigResolution:       Resolution.New("pingBrokerConfig", "127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 			BrokerSubscriptionResolution: Resolution.New("pingBroker", "127.0.0.1:60007", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 		}, appPing.New)),
+		Node.New(Config.Node{
+			Name:       "nodeWebsocketHTTP",
+			LoggerPath: ERROR_LOG_FILE_PATH,
+		}, appWebsocketHTTP.New()),
 	))
 }
