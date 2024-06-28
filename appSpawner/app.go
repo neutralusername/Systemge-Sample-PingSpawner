@@ -82,7 +82,7 @@ func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	pingNode := Node.New(Config.Node{
 		Name:       id,
 		LoggerPath: "error.log",
-	}, appPing.New(id), nil, nil)
+	}, appPing.New(id))
 
 	err := node.AddAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {

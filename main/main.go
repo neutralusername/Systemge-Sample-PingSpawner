@@ -40,10 +40,10 @@ func main() {
 		Node.New(Config.Node{
 			Name:       "nodeWebsocketHTTP",
 			LoggerPath: ERROR_LOG_FILE_PATH,
-		}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP),
+		}, applicationWebsocketHTTP),
 		Node.New(Config.Node{
 			Name:       "nodeSpawner",
 			LoggerPath: ERROR_LOG_FILE_PATH,
-		}, appSpawner.New(), nil, nil),
+		}, appSpawner.New()),
 	))
 }
