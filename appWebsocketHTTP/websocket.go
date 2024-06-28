@@ -12,7 +12,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 }
 
 func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	_, err := node.SyncMessage(topics.NEW, websocketClient.GetId(), websocketClient.GetId())
+	_, err := node.SyncMessage(topics.START_NODE_SYNC, websocketClient.GetId(), websocketClient.GetId())
 	if err != nil {
 		panic(Error.New("Error sending sync message", err))
 	}
@@ -23,7 +23,7 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	_, err := node.SyncMessage(topics.END, node.GetName(), websocketClient.GetId())
+	_, err := node.SyncMessage(topics.END_NODE_SYNC, node.GetName(), websocketClient.GetId())
 	if err != nil {
 		//windows seems to have issues with the sync token generation.. sometimes it will generate two similar tokens in sequence. i assume the system time is not accurate enough for very fast token generation
 		panic(Error.New("Error sending sync message", err))
