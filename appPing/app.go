@@ -31,7 +31,7 @@ func (app *App) OnStart(node *Node.Node) error {
 }
 
 func (app *App) OnStop(node *Node.Node) error {
-	println(node.GetName() + " stopped")
+	println(node.GetName() + " ended")
 	return nil
 }
 
