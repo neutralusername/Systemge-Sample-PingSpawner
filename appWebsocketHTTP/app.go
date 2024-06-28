@@ -9,7 +9,7 @@ import (
 type AppWebsocketHTTP struct {
 }
 
-func New() Node.WebsocketHTTPApplication {
+func New() *AppWebsocketHTTP {
 	return &AppWebsocketHTTP{}
 }
 
