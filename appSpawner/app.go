@@ -79,12 +79,10 @@ func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	if _, ok := app.spawnedNodes[id]; ok {
 		return "", Error.New("Node "+id+" already exists", nil)
 	}
-	pingNodeConfig := &Config.Node{
+	pingNode := Module.NewNode(Config.Node{
 		Name:       id,
 		LoggerPath: "error.log",
-	}
-	pingApp := appPing.New(id)
-	pingNode := Module.NewNode(pingNodeConfig, pingApp, nil, nil)
+	}, appPing.New(id), nil, nil)
 
 	err := node.AddAsyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
