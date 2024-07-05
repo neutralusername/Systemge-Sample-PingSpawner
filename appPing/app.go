@@ -4,8 +4,6 @@ import (
 	"Systemge/Config"
 	"Systemge/Message"
 	"Systemge/Node"
-	"Systemge/Resolution"
-	"Systemge/Utilities"
 	"SystemgeSamplePingSpawner/topics"
 )
 
@@ -54,7 +52,6 @@ func (app *App) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler 
 
 func (app *App) GetApplicationConfig() Config.Application {
 	return Config.Application{
-		ResolverResolution:         Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 		HandleMessagesSequentially: false,
 	}
 }
