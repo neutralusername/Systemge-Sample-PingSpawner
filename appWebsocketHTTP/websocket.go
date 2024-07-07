@@ -4,6 +4,7 @@ import (
 	"Systemge/Config"
 	"Systemge/Error"
 	"Systemge/Node"
+	"Systemge/TcpServer"
 	"SystemgeSamplePingSpawner/topics"
 )
 
@@ -28,14 +29,14 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 		//windows seems to have issues with the sync token generation.. sometimes it will generate two similar tokens in sequence. i assume the system time is not accurate enough for very fast token generation
 		panic(Error.New("Error sending sync message", err))
 	}
-	node.RemoveTopicResolution(websocketClient.GetId())
 }
 
 func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() Config.Websocket {
 	return Config.Websocket{
-		Pattern:     "/ws",
-		Port:        ":8443",
-		TlsCertPath: "",
-		TlsKeyPath:  "",
+		Pattern:                          "/ws",
+		Server:                           TcpServer.New(8443, "", ""),
+		HandleClientMessagesSequentially: false,
+		ClientMessageCooldownMs:          0,
+		ClientWatchdogTimeoutMs:          20000,
 	}
 }
