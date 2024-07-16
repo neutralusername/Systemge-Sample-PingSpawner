@@ -14,12 +14,6 @@ import (
 	"SystemgeSamplePingSpawner/config"
 )
 
-const RESOLVER_ADDRESS = "127.0.0.1:60000"
-const RESOLVER_NAME_INDICATION = "127.0.0.1"
-const RESOLVER_TLS_CERT_PATH = "MyCertificate.crt"
-const WEBSOCKET_PORT = ":8443"
-const HTTP_PORT = ":8080"
-
 const ERROR_LOG_FILE_PATH = "error.log"
 
 func main() {
@@ -45,7 +39,7 @@ func main() {
 			SpawnedNodeLogger:      Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, nil),
 			IsSpawnedNodeTopicSync: false,
 			ResolverEndpoint:       TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
-			BrokerConfigEndpoint:   TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.BROKER_CONFIG_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
+			BrokerConfigEndpoint:   TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(60003), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
 		}, appPing.New)),
 	))
 }
