@@ -19,7 +19,7 @@ func (app *App) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
 	return map[string]Node.SyncMessageHandler{}
 }
 
-func (app *App) GetSystemgeConfig() Config.Systemge {
+func (app *App) GetSystemgeComponentConfig() Config.Systemge {
 	return Config.Systemge{
 		HandleMessagesSequentially: false,
 	}
