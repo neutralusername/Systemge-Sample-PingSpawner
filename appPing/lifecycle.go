@@ -7,7 +7,7 @@ import (
 
 func (app *App) OnStart(node *Node.Node) error {
 	println(node.GetName() + " started")
-	response, err := node.SyncMessage(topics.PING, node.GetName(), "ping")
+	response, err := node.SyncMessage(topics.PINGPONG, node.GetName(), "ping")
 	if err != nil {
 		panic(err)
 	}
