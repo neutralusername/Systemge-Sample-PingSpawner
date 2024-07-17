@@ -14,7 +14,3 @@ func New(id string) Node.Application {
 	}
 	return app
 }
-
-func (app *App) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler {
-	return map[string]Node.CustomCommandHandler{}
-}
