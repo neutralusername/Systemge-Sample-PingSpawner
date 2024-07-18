@@ -3,12 +3,11 @@ package main
 import (
 	"Systemge/Broker"
 	"Systemge/Config"
+	"Systemge/Helpers"
 	"Systemge/Node"
 	"Systemge/Resolver"
 	"Systemge/Spawner"
-	"Systemge/TcpEndpoint"
-	"Systemge/TcpServer"
-	"Systemge/Utilities"
+	"Systemge/Tcp"
 	"SystemgeSamplePingSpawner/appPing"
 	"SystemgeSamplePingSpawner/appWebsocketHTTP"
 	"SystemgeSamplePingSpawner/config"
@@ -21,23 +20,35 @@ func main() {
 
 	Node.StartCommandLineInterface(true,
 		Node.New(Config.Node{
-			Name:   "nodeResolver",
-			Logger: Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
+			Name: "nodeResolver",
+			Logger: Config.Logger{
+				InfoPath:    ERROR_LOG_FILE_PATH,
+				DebugPath:   ERROR_LOG_FILE_PATH,
+				ErrorPath:   ERROR_LOG_FILE_PATH,
+				WarningPath: ERROR_LOG_FILE_PATH,
+				QueueBuffer: 10000,
+			},
 		}, Resolver.New(Config.Resolver{
-			Server:       TcpServer.New(60000, "MyCertificate.crt", "MyKey.key"),
-			ConfigServer: TcpServer.New(60001, "MyCertificate.crt", "MyKey.key"),
+			Server:       Tcp.NewServer(60000, "MyCertificate.crt", "MyKey.key"),
+			ConfigServer: Tcp.NewServer(60001, "MyCertificate.crt", "MyKey.key"),
 
 			TcpTimeoutMs: 5000,
 		})),
 		Node.New(Config.Node{
-			Name:   "nodeBrokerSpawner",
-			Logger: Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
+			Name: "nodeBrokerSpawner",
+			Logger: Config.Logger{
+				InfoPath:    ERROR_LOG_FILE_PATH,
+				DebugPath:   ERROR_LOG_FILE_PATH,
+				ErrorPath:   ERROR_LOG_FILE_PATH,
+				WarningPath: ERROR_LOG_FILE_PATH,
+				QueueBuffer: 10000,
+			},
 		}, Broker.New(Config.Broker{
-			Server:       TcpServer.New(60002, "MyCertificate.crt", "MyKey.key"),
-			Endpoint:     TcpEndpoint.New("127.0.0.1:60002", "example.com", Utilities.GetFileContent("MyCertificate.crt")),
-			ConfigServer: TcpServer.New(60003, "MyCertificate.crt", "MyKey.key"),
+			Server:       Tcp.NewServer(60002, "MyCertificate.crt", "MyKey.key"),
+			Endpoint:     Tcp.NewEndpoint("127.0.0.1:60002", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
+			ConfigServer: Tcp.NewServer(60003, "MyCertificate.crt", "MyKey.key"),
 
-			ResolverConfigEndpoint: TcpEndpoint.New("127.0.0.1:60001", "example.com", Utilities.GetFileContent("MyCertificate.crt")),
+			ResolverConfigEndpoint: Tcp.NewEndpoint("127.0.0.1:60001", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
 
 			SyncTopics:  []string{topics.END_NODE_SYNC, topics.START_NODE_SYNC},
 			AsyncTopics: []string{topics.END_NODE_ASYNC, topics.START_NODE_ASYNC},
@@ -46,14 +57,20 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(Config.Node{
-			Name:   "nodeBrokerWebsocketHTTP",
-			Logger: Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
+			Name: "nodeBrokerWebsocketHTTP",
+			Logger: Config.Logger{
+				InfoPath:    ERROR_LOG_FILE_PATH,
+				DebugPath:   ERROR_LOG_FILE_PATH,
+				ErrorPath:   ERROR_LOG_FILE_PATH,
+				WarningPath: ERROR_LOG_FILE_PATH,
+				QueueBuffer: 10000,
+			},
 		}, Broker.New(Config.Broker{
-			Server:       TcpServer.New(60004, "MyCertificate.crt", "MyKey.key"),
-			Endpoint:     TcpEndpoint.New("127.0.0.1:60004", "example.com", Utilities.GetFileContent("MyCertificate.crt")),
-			ConfigServer: TcpServer.New(60005, "MyCertificate.crt", "MyKey.key"),
+			Server:       Tcp.NewServer(60004, "MyCertificate.crt", "MyKey.key"),
+			Endpoint:     Tcp.NewEndpoint("127.0.0.1:60004", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
+			ConfigServer: Tcp.NewServer(60005, "MyCertificate.crt", "MyKey.key"),
 
-			ResolverConfigEndpoint: TcpEndpoint.New("127.0.0.1:60001", "example.com", Utilities.GetFileContent("MyCertificate.crt")),
+			ResolverConfigEndpoint: Tcp.NewEndpoint("127.0.0.1:60001", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
 
 			SyncTopics: []string{topics.PINGPONG},
 
@@ -61,26 +78,44 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(Config.Node{
-			Name:   "nodeBrokerPing",
-			Logger: Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
+			Name: "nodeBrokerPing",
+			Logger: Config.Logger{
+				InfoPath:    ERROR_LOG_FILE_PATH,
+				DebugPath:   ERROR_LOG_FILE_PATH,
+				ErrorPath:   ERROR_LOG_FILE_PATH,
+				WarningPath: ERROR_LOG_FILE_PATH,
+				QueueBuffer: 10000,
+			},
 		}, Broker.New(Config.Broker{
-			Server:       TcpServer.New(60006, "MyCertificate.crt", "MyKey.key"),
-			Endpoint:     TcpEndpoint.New("127.0.0.1:60006", "example.com", Utilities.GetFileContent("MyCertificate.crt")),
-			ConfigServer: TcpServer.New(60007, "MyCertificate.crt", "MyKey.key"),
+			Server:       Tcp.NewServer(60006, "MyCertificate.crt", "MyKey.key"),
+			Endpoint:     Tcp.NewEndpoint("127.0.0.1:60006", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
+			ConfigServer: Tcp.NewServer(60007, "MyCertificate.crt", "MyKey.key"),
 
-			ResolverConfigEndpoint: TcpEndpoint.New("127.0.0.1:60001", "example.com", Utilities.GetFileContent("MyCertificate.crt")),
+			ResolverConfigEndpoint: Tcp.NewEndpoint("127.0.0.1:60001", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
 
 			SyncResponseTimeoutMs: 10000,
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(Config.Node{
-			Name:   "nodeSpawner",
-			Logger: Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
+			Name: "nodeSpawner",
+			Logger: Config.Logger{
+				InfoPath:    ERROR_LOG_FILE_PATH,
+				DebugPath:   ERROR_LOG_FILE_PATH,
+				ErrorPath:   ERROR_LOG_FILE_PATH,
+				WarningPath: ERROR_LOG_FILE_PATH,
+				QueueBuffer: 10000,
+			},
 		}, Spawner.New(Config.Spawner{
-			SpawnedNodeLogger:      Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
+			Logger: Config.Logger{
+				InfoPath:    ERROR_LOG_FILE_PATH,
+				DebugPath:   ERROR_LOG_FILE_PATH,
+				ErrorPath:   ERROR_LOG_FILE_PATH,
+				WarningPath: ERROR_LOG_FILE_PATH,
+				QueueBuffer: 10000,
+			},
 			IsSpawnedNodeTopicSync: false,
-			ResolverEndpoint:       TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
-			BrokerConfigEndpoint:   TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(60003), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
+			ResolverEndpoint:       Tcp.NewEndpoint(config.SERVER_IP+":"+Helpers.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Helpers.GetFileContent(config.CERT_PATH)),
+			BrokerConfigEndpoint:   Tcp.NewEndpoint(config.SERVER_IP+":"+Helpers.IntToString(60003), config.SERVER_NAME_INDICATION, Helpers.GetFileContent(config.CERT_PATH)),
 		}, Config.Systemge{
 			HandleMessagesSequentially: false,
 
@@ -89,12 +124,18 @@ func main() {
 			SyncResponseTimeoutMs:     10000,
 			TcpTimeoutMs:              5000,
 
-			ResolverEndpoint: TcpEndpoint.New("127.0.0.1:60000", "example.com", Utilities.GetFileContent("MyCertificate.crt")),
+			ResolverEndpoint: Tcp.NewEndpoint("127.0.0.1:60000", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
 		},
 			appPing.New)),
 		Node.New(Config.Node{
-			Name:   "nodeWebsocketHTTP",
-			Logger: Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
+			Name: "nodeWebsocketHTTP",
+			Logger: Config.Logger{
+				InfoPath:    ERROR_LOG_FILE_PATH,
+				DebugPath:   ERROR_LOG_FILE_PATH,
+				ErrorPath:   ERROR_LOG_FILE_PATH,
+				WarningPath: ERROR_LOG_FILE_PATH,
+				QueueBuffer: 10000,
+			},
 		}, appWebsocketHTTP.New()),
 	)
 }
