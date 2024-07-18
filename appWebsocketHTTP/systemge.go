@@ -5,7 +5,6 @@ import (
 	"Systemge/Helpers"
 	"Systemge/Message"
 	"Systemge/Node"
-	"Systemge/Tcp"
 	"SystemgeSamplePingSpawner/topics"
 )
 
@@ -18,7 +17,11 @@ func (app *AppWebsocketHTTP) GetSystemgeComponentConfig() Config.Systemge {
 		SyncResponseTimeoutMs:     10000,
 		TcpTimeoutMs:              5000,
 
-		ResolverEndpoint: Tcp.NewEndpoint("127.0.0.1:60000", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
+		ResolverEndpoint: Config.TcpEndpoint{
+			Address: "127.0.0.1:60000",
+			Domain:  "example.com",
+			TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+		},
 	}
 }
 
