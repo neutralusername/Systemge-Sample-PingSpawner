@@ -5,6 +5,9 @@ import (
 	"Systemge/Error"
 	"Systemge/Node"
 	"SystemgeSamplePingSpawner/topics"
+	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.WebsocketMessageHandler {
@@ -39,5 +42,12 @@ func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() *Config.Websocket {
 		HandleClientMessagesSequentially: false,
 		ClientMessageCooldownMs:          0,
 		ClientWatchdogTimeoutMs:          20000,
+		Upgrader: &websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
 	}
 }
