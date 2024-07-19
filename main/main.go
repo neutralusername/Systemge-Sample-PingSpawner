@@ -17,7 +17,7 @@ const LOGGER_PATH = "logs.log"
 
 func main() {
 
-	Node.StartCommandLineInterface(true,
+	Node.StartCommandLineInterface(
 		Node.New(&Config.Node{
 			Name:           "nodeResolver",
 			RandomizerSeed: Tools.GetSystemTime(),
