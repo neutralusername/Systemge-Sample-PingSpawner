@@ -7,6 +7,7 @@ import (
 	"Systemge/Node"
 	"Systemge/Resolver"
 	"Systemge/Spawner"
+	"Systemge/Tools"
 	"SystemgeSamplePingSpawner/appPing"
 	"SystemgeSamplePingSpawner/appWebsocketHTTP"
 	"SystemgeSamplePingSpawner/topics"
@@ -18,7 +19,8 @@ func main() {
 
 	Node.StartCommandLineInterface(true,
 		Node.New(&Config.Node{
-			Name: "nodeResolver",
+			Name:           "nodeResolver",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -54,7 +56,8 @@ func main() {
 			TcpTimeoutMs: 5000,
 		})),
 		Node.New(&Config.Node{
-			Name: "nodeBrokerSpawner",
+			Name:           "nodeBrokerSpawner",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -103,7 +106,8 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name: "nodeBrokerWebsocketHTTP",
+			Name:           "nodeBrokerWebsocketHTTP",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -151,7 +155,8 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name: "nodeBrokerPing",
+			Name:           "nodeBrokerPing",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -193,7 +198,8 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name: "nodeSpawner",
+			Name:           "nodeSpawner",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -262,7 +268,8 @@ func main() {
 		},
 			appPing.New)),
 		Node.New(&Config.Node{
-			Name: "nodeWebsocketHTTP",
+			Name:           "nodeWebsocketHTTP",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
