@@ -41,10 +41,8 @@ func main() {
 			Prefix:      "[Debug \"dashboard\"] ",
 		},
 	}, Dashboard.New(&Config.Dashboard{
-		Http: &Config.Http{
-			Server: &Config.TcpServer{
-				Port: 8081,
-			},
+		Server: &Config.TcpServer{
+			Port: 8081,
 		},
 		StatusUpdateIntervalMs: 1000,
 	},
