@@ -10,6 +10,29 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() *Config.Websocket {
+	return &Config.Websocket{
+		Pattern: "/ws",
+		Http: &Config.Http{
+			Server: &Config.TcpServer{
+				Port: 8443,
+			},
+			Blacklist: []string{},
+			Whitelist: []string{},
+		},
+		HandleClientMessagesSequentially: false,
+		ClientMessageCooldownMs:          0,
+		ClientWatchdogTimeoutMs:          20000,
+		Upgrader: &websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+	}
+}
+
 func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.WebsocketMessageHandler {
 	return map[string]Node.WebsocketMessageHandler{}
 }
@@ -30,24 +53,5 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	if err != nil {
 		//windows seems to have issues with the sync token generation.. sometimes it will generate two similar tokens in sequence. i assume the system time is not accurate enough for very fast token generation
 		panic(Error.New("Error sending sync message", err))
-	}
-}
-
-func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() *Config.Websocket {
-	return &Config.Websocket{
-		Pattern: "/ws",
-		Server: &Config.TcpServer{
-			Port: 8443,
-		},
-		HandleClientMessagesSequentially: false,
-		ClientMessageCooldownMs:          0,
-		ClientWatchdogTimeoutMs:          20000,
-		Upgrader: &websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-			CheckOrigin: func(r *http.Request) bool {
-				return true
-			},
-		},
 	}
 }
