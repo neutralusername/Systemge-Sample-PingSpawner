@@ -319,5 +319,5 @@ func main() {
 				Prefix:      "[Debug \"nodeWebsocketHTTP\"] ",
 			},
 		}, appWebsocketHTTP.New()),
-	)).StartBlocking(nil)
+	)).StartBlocking()
 }
