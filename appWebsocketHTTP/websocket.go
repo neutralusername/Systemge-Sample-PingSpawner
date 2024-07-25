@@ -51,7 +51,7 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	_, err := node.SyncMessage(topics.END_NODE_SYNC, node.GetName(), websocketClient.GetId())
+	_, err := node.SyncMessage(topics.STOP_NODE_SYNC, node.GetName(), websocketClient.GetId())
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 			errorLogger.Log(Error.New("Error sending sync message", err).Error())
