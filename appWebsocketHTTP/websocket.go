@@ -4,7 +4,7 @@ import (
 	"Systemge/Config"
 	"Systemge/Error"
 	"Systemge/Node"
-	"SystemgeSamplePingSpawner/topics"
+	"Systemge/Spawner"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -36,11 +36,11 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 }
 
 func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	_, err := node.SyncMessage(topics.SPAWN_NODE_SYNC, websocketClient.GetId(), websocketClient.GetId())
+	_, err := node.SyncMessage(Spawner.SPAWN_NODE_SYNC, websocketClient.GetId(), websocketClient.GetId())
 	if err != nil {
 		panic(Error.New("Error sending sync message", err))
 	}
-	_, err = node.SyncMessage(topics.START_NODE_SYNC, websocketClient.GetId(), websocketClient.GetId())
+	_, err = node.SyncMessage(Spawner.START_NODE_SYNC, websocketClient.GetId(), websocketClient.GetId())
 	if err != nil {
 		panic(Error.New("Error sending sync message", err))
 	}
@@ -51,13 +51,13 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	_, err := node.SyncMessage(topics.STOP_NODE_SYNC, node.GetName(), websocketClient.GetId())
+	_, err := node.SyncMessage(Spawner.STOP_NODE_SYNC, node.GetName(), websocketClient.GetId())
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 			errorLogger.Log(Error.New("Error sending sync message", err).Error())
 		}
 	}
-	err = node.AsyncMessage(topics.DESPAWN_NODE_ASYNC, node.GetName(), websocketClient.GetId())
+	err = node.AsyncMessage(Spawner.DESPAWN_NODE_ASYNC, node.GetName(), websocketClient.GetId())
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 			errorLogger.Log(Error.New("Error sending async message", err).Error())
