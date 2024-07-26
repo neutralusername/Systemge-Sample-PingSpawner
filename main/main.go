@@ -152,9 +152,7 @@ func main() {
 			WarningLogger:  Tools.NewLogger("[Warning \"nodeSpawner\"] ", loggerQueue),
 			ErrorLogger:    Tools.NewLogger("[Error \"nodeSpawner\"] ", loggerQueue),
 		}, Spawner.New(&Config.Spawner{
-			InfoLogger:             Tools.NewLogger("[Info \"spawnedNodes\"]", loggerQueue),
-			WarningLogger:          Tools.NewLogger("[Warning \"spawnedNodes\"] ", loggerQueue),
-			ErrorLogger:            Tools.NewLogger("[Error \"spawnedNodes\"] ", loggerQueue),
+			LoggerQueue:            loggerQueue,
 			IsSpawnedNodeTopicSync: false,
 			ResolverEndpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60000",
