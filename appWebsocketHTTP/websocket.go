@@ -1,11 +1,12 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Config"
-	"Systemge/Error"
-	"Systemge/Node"
-	"Systemge/Spawner"
 	"net/http"
+
+	"github.com/neutralusername/Systemge/Config"
+	"github.com/neutralusername/Systemge/Error"
+	"github.com/neutralusername/Systemge/Node"
+	"github.com/neutralusername/Systemge/Spawner"
 
 	"github.com/gorilla/websocket"
 )

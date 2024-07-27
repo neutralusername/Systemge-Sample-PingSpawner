@@ -1,8 +1,9 @@
 package appPing
 
 import (
-	"Systemge/Node"
 	"SystemgeSamplePingSpawner/topics"
+
+	"github.com/neutralusername/Systemge/Node"
 )
 
 func (app *App) OnStart(node *Node.Node) error {

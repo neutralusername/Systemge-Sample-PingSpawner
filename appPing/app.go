@@ -1,7 +1,7 @@
 package appPing
 
 import (
-	"Systemge/Node"
+	"github.com/neutralusername/Systemge/Node"
 )
 
 type App struct {
