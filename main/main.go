@@ -16,7 +16,7 @@ import (
 const LOGGER_PATH = "logs.log"
 
 func main() {
-	loggerQueue := Tools.NewLoggerQueue(LOGGER_PATH, 10000)
+	Tools.NewLoggerQueue(LOGGER_PATH, 10000)
 	Node.New(&Config.Node{
 		Name:           "dashboard",
 		RandomizerSeed: Tools.GetSystemTime(),
@@ -37,13 +37,11 @@ func main() {
 		AddDashboardToDashboard:        true,
 	},
 		Node.New(&Config.Node{
-			Name:           "nodeResolver",
-			RandomizerSeed: Tools.GetSystemTime(),
-			InfoLogger:     Tools.NewLogger("[Info \"nodeResolver\"]", loggerQueue),
-			//InternalInfoLogger:    Tools.NewLogger("[InternalInfo \"nodeResolver\"]", loggerQueue),
-			WarningLogger: Tools.NewLogger("[Warning \"nodeResolver\"] ", loggerQueue),
-			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeResolver\"] ", loggerQueue),
-			ErrorLogger: Tools.NewLogger("[Error \"nodeResolver\"] ", loggerQueue),
+			Name:              "nodeResolver",
+			RandomizerSeed:    Tools.GetSystemTime(),
+			InfoLoggerPath:    LOGGER_PATH,
+			WarningLoggerPath: LOGGER_PATH,
+			ErrorLoggerPath:   LOGGER_PATH,
 		}, Node.NewResolverApplication(&Config.Resolver{
 			Server: &Config.TcpServer{
 				Port:        60000,
@@ -59,13 +57,11 @@ func main() {
 			TcpTimeoutMs: 5000,
 		})),
 		Node.New(&Config.Node{
-			Name:           "nodeBrokerSpawner",
-			RandomizerSeed: Tools.GetSystemTime(),
-			InfoLogger:     Tools.NewLogger("[Info \"nodeBrokerSpawner\"]", loggerQueue),
-			//InternalInfoLogger:    Tools.NewLogger("[InternalInfo \"nodeBrokerSpawner\"]", loggerQueue),
-			WarningLogger: Tools.NewLogger("[Warning \"nodeBrokerSpawner\"] ", loggerQueue),
-			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeBrokerSpawner\"] ", loggerQueue),
-			ErrorLogger: Tools.NewLogger("[Error \"nodeBrokerSpawner\"] ", loggerQueue),
+			Name:              "nodeBrokerSpawner",
+			RandomizerSeed:    Tools.GetSystemTime(),
+			InfoLoggerPath:    LOGGER_PATH,
+			WarningLoggerPath: LOGGER_PATH,
+			ErrorLoggerPath:   LOGGER_PATH,
 		}, Node.NewBrokerApplication(&Config.Broker{
 			Server: &Config.TcpServer{
 				Port:        60002,
@@ -94,13 +90,11 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name:           "nodeBrokerWebsocketHTTP",
-			RandomizerSeed: Tools.GetSystemTime(),
-			InfoLogger:     Tools.NewLogger("[Info \"nodeBrokerWebsocketHTTP\"]", loggerQueue),
-			//InternalInfoLogger:    Tools.NewLogger("[InternalInfo \"nodeBrokerWebsocketHTTP\"]", loggerQueue),
-			WarningLogger: Tools.NewLogger("[Warning \"nodeBrokerWebsocketHTTP\"] ", loggerQueue),
-			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeBrokerWebsocketHTTP\"] ", loggerQueue),
-			ErrorLogger: Tools.NewLogger("[Error \"nodeBrokerWebsocketHTTP\"] ", loggerQueue),
+			Name:              "nodeBrokerWebsocketHTTP",
+			RandomizerSeed:    Tools.GetSystemTime(),
+			InfoLoggerPath:    LOGGER_PATH,
+			WarningLoggerPath: LOGGER_PATH,
+			ErrorLoggerPath:   LOGGER_PATH,
 		}, Node.NewBrokerApplication(&Config.Broker{
 			Server: &Config.TcpServer{
 				Port:        60004,
@@ -128,13 +122,11 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name:           "nodeBrokerPing",
-			RandomizerSeed: Tools.GetSystemTime(),
-			InfoLogger:     Tools.NewLogger("[Info \"nodeBrokerPing\"]", loggerQueue),
-			//InternalInfoLogger:    Tools.NewLogger("[InternalInfo \"nodeBrokerPing\"]", loggerQueue),
-			WarningLogger: Tools.NewLogger("[Warning \"nodeBrokerPing\"] ", loggerQueue),
-			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeBrokerPing\"] ", loggerQueue),
-			ErrorLogger: Tools.NewLogger("[Error \"nodeBrokerPing\"] ", loggerQueue),
+			Name:              "nodeBrokerPing",
+			RandomizerSeed:    Tools.GetSystemTime(),
+			InfoLoggerPath:    LOGGER_PATH,
+			WarningLoggerPath: LOGGER_PATH,
+			ErrorLoggerPath:   LOGGER_PATH,
 		}, Node.NewBrokerApplication(&Config.Broker{
 			Server: &Config.TcpServer{
 				Port:        60006,
@@ -156,15 +148,15 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name:           "nodeSpawner",
-			RandomizerSeed: Tools.GetSystemTime(),
-			InfoLogger:     Tools.NewLogger("[Info \"nodeSpawner\"]", loggerQueue),
-			//InternalInfoLogger:    Tools.NewLogger("[InternalInfo \"nodeSpawner\"]", loggerQueue),
-			WarningLogger: Tools.NewLogger("[Warning \"nodeSpawner\"] ", loggerQueue),
-			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeSpawner\"] ", loggerQueue),
-			ErrorLogger: Tools.NewLogger("[Error \"nodeSpawner\"] ", loggerQueue),
+			Name:              "nodeSpawner",
+			RandomizerSeed:    Tools.GetSystemTime(),
+			InfoLoggerPath:    LOGGER_PATH,
+			WarningLoggerPath: LOGGER_PATH,
+			ErrorLoggerPath:   LOGGER_PATH,
 		}, Spawner.New(&Config.Spawner{
-			LoggerQueue:                 loggerQueue,
+			InfoLoggerPath:              LOGGER_PATH,
+			WarningLoggerPath:           LOGGER_PATH,
+			ErrorLoggerPath:             LOGGER_PATH,
 			IsSpawnedNodeTopicSync:      false,
 			PropagateSpawnedNodeChanges: true,
 			ResolverEndpoint: &Config.TcpEndpoint{
@@ -193,13 +185,11 @@ func main() {
 		},
 			appPing.New)),
 		Node.New(&Config.Node{
-			Name:           "nodeWebsocketHTTP",
-			RandomizerSeed: Tools.GetSystemTime(),
-			InfoLogger:     Tools.NewLogger("[Info \"nodeWebsocketHTTP\"]", loggerQueue),
-			//InternalInfoLogger:    Tools.NewLogger("[InternalInfo \"nodeWebsocketHTTP\"]", loggerQueue),
-			WarningLogger: Tools.NewLogger("[Warning \"nodeWebsocketHTTP\"] ", loggerQueue),
-			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeWebsocketHTTP\"] ", loggerQueue),
-			ErrorLogger: Tools.NewLogger("[Error \"nodeWebsocketHTTP\"] ", loggerQueue),
+			Name:              "nodeWebsocketHTTP",
+			RandomizerSeed:    Tools.GetSystemTime(),
+			InfoLoggerPath:    LOGGER_PATH,
+			WarningLoggerPath: LOGGER_PATH,
+			ErrorLoggerPath:   LOGGER_PATH,
 		}, appWebsocketHTTP.New()),
 	)).StartBlocking()
 }
