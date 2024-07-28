@@ -5,12 +5,10 @@ import (
 	"SystemgeSamplePingSpawner/appWebsocketHTTP"
 	"SystemgeSamplePingSpawner/topics"
 
-	"github.com/neutralusername/Systemge/Broker"
 	"github.com/neutralusername/Systemge/Config"
 	"github.com/neutralusername/Systemge/Dashboard"
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Node"
-	"github.com/neutralusername/Systemge/Resolver"
 	"github.com/neutralusername/Systemge/Spawner"
 	"github.com/neutralusername/Systemge/Tools"
 )
@@ -45,7 +43,7 @@ func main() {
 			WarningLogger: Tools.NewLogger("[Warning \"nodeResolver\"] ", loggerQueue),
 			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeResolver\"] ", loggerQueue),
 			ErrorLogger: Tools.NewLogger("[Error \"nodeResolver\"] ", loggerQueue),
-		}, Resolver.New(&Config.Resolver{
+		}, Node.NewResolverApplication(&Config.Resolver{
 			Server: &Config.TcpServer{
 				Port:        60000,
 				TlsCertPath: "MyCertificate.crt",
@@ -67,7 +65,7 @@ func main() {
 			WarningLogger: Tools.NewLogger("[Warning \"nodeBrokerSpawner\"] ", loggerQueue),
 			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeBrokerSpawner\"] ", loggerQueue),
 			ErrorLogger: Tools.NewLogger("[Error \"nodeBrokerSpawner\"] ", loggerQueue),
-		}, Broker.New(&Config.Broker{
+		}, Node.NewBrokerApplication(&Config.Broker{
 			Server: &Config.TcpServer{
 				Port:        60002,
 				TlsCertPath: "MyCertificate.crt",
@@ -102,7 +100,7 @@ func main() {
 			WarningLogger: Tools.NewLogger("[Warning \"nodeBrokerWebsocketHTTP\"] ", loggerQueue),
 			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeBrokerWebsocketHTTP\"] ", loggerQueue),
 			ErrorLogger: Tools.NewLogger("[Error \"nodeBrokerWebsocketHTTP\"] ", loggerQueue),
-		}, Broker.New(&Config.Broker{
+		}, Node.NewBrokerApplication(&Config.Broker{
 			Server: &Config.TcpServer{
 				Port:        60004,
 				TlsCertPath: "MyCertificate.crt",
@@ -136,7 +134,7 @@ func main() {
 			WarningLogger: Tools.NewLogger("[Warning \"nodeBrokerPing\"] ", loggerQueue),
 			//InternalWarningLogger: Tools.NewLogger("[InternalWarning \"nodeBrokerPing\"] ", loggerQueue),
 			ErrorLogger: Tools.NewLogger("[Error \"nodeBrokerPing\"] ", loggerQueue),
-		}, Broker.New(&Config.Broker{
+		}, Node.NewBrokerApplication(&Config.Broker{
 			Server: &Config.TcpServer{
 				Port:        60006,
 				TlsCertPath: "MyCertificate.crt",
