@@ -39,15 +39,15 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
 	_, err := node.SyncMessage(Spawner.SPAWN_NODE_SYNC, websocketClient.GetId(), websocketClient.GetId())
 	if err != nil {
-		panic(Error.New("Error sending sync message", err))
+		panic(Error.New("Failed sending sync message", err))
 	}
 	_, err = node.SyncMessage(Spawner.START_NODE_SYNC, websocketClient.GetId(), websocketClient.GetId())
 	if err != nil {
-		panic(Error.New("Error sending sync message", err))
+		panic(Error.New("Failed sending sync message", err))
 	}
 	err = node.AsyncMessage(websocketClient.GetId(), websocketClient.GetId(), "ping")
 	if err != nil {
-		panic(Error.New("Error sending async message", err))
+		panic(Error.New("Failed sending async message", err))
 	}
 }
 
@@ -55,13 +55,13 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	_, err := node.SyncMessage(Spawner.STOP_NODE_SYNC, node.GetName(), websocketClient.GetId())
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-			errorLogger.Log(Error.New("Error sending sync message", err).Error())
+			errorLogger.Log(Error.New("Failed sending sync message", err).Error())
 		}
 	}
 	err = node.AsyncMessage(Spawner.DESPAWN_NODE_ASYNC, node.GetName(), websocketClient.GetId())
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-			errorLogger.Log(Error.New("Error sending async message", err).Error())
+			errorLogger.Log(Error.New("Failed sending async message", err).Error())
 		}
 	}
 }
