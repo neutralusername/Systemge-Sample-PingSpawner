@@ -78,10 +78,12 @@ func main() {
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
 			},
-			ResolverConfigEndpoint: &Config.TcpEndpoint{
-				Address: "127.0.0.1:60001",
-				Domain:  "example.com",
-				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+			ResolverConfigEndpoints: []*Config.TcpEndpoint{
+				{
+					Address: "127.0.0.1:60001",
+					Domain:  "example.com",
+					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+				},
 			},
 			SyncTopics:  []string{Spawner.STOP_NODE_SYNC, Spawner.START_NODE_SYNC, Spawner.SPAWN_NODE_SYNC, Spawner.DESPAWN_NODE_SYNC},
 			AsyncTopics: []string{Spawner.STOP_NODE_ASYNC, Spawner.START_NODE_ASYNC, Spawner.SPAWN_NODE_ASYNC, Spawner.DESPAWN_NODE_ASYNC},
@@ -111,10 +113,12 @@ func main() {
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
 			},
-			ResolverConfigEndpoint: &Config.TcpEndpoint{
-				Address: "127.0.0.1:60001",
-				Domain:  "example.com",
-				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+			ResolverConfigEndpoints: []*Config.TcpEndpoint{
+				{
+					Address: "127.0.0.1:60001",
+					Domain:  "example.com",
+					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+				},
 			},
 			SyncTopics: []string{topics.PINGPONG},
 
@@ -139,10 +143,12 @@ func main() {
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
 			ConfigServer: &Config.TcpServer{Port: 60007, TlsCertPath: "MyCertificate.crt", TlsKeyPath: "MyKey.key"},
-			ResolverConfigEndpoint: &Config.TcpEndpoint{
-				Address: "127.0.0.1:60001",
-				Domain:  "example.com",
-				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+			ResolverConfigEndpoints: []*Config.TcpEndpoint{
+				{
+					Address: "127.0.0.1:60001",
+					Domain:  "example.com",
+					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+				},
 			},
 			SyncResponseTimeoutMs: 10000,
 			TcpTimeoutMs:          5000,
@@ -177,10 +183,12 @@ func main() {
 			SyncResponseTimeoutMs:     10000,
 			TcpTimeoutMs:              5000,
 
-			ResolverEndpoint: &Config.TcpEndpoint{
-				Address: "127.0.0.1:60000",
-				Domain:  "example.com",
-				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+			ResolverEndpoints: []*Config.TcpEndpoint{
+				{
+					Address: "127.0.0.1:60000",
+					Domain:  "example.com",
+					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+				},
 			},
 		},
 			appPing.New)),
