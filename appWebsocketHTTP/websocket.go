@@ -15,7 +15,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 
 func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
 	port := app.nextSpawnedNodePort.Add(1)
-	responseChannel, err := node.SyncMessage(Spawner.SPAWN_NODE_SYNC, Helpers.JsonMarshal(&Config.NewNode{
+	err := node.AsyncMessage(Spawner.SPAWN_AND_START_NODE_ASYNC, Helpers.JsonMarshal(&Config.NewNode{
 		NodeConfig: &Config.Node{
 			Name:                      "spawnedNode" + "-" + websocketClient.GetId(),
 			RandomizerSeed:            Tools.GetSystemTime(),
@@ -24,8 +24,6 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 			ErrorLoggerPath:           "logs.log",
 			InternalInfoLoggerPath:    "logs.log",
 			InternalWarningLoggerPath: "logs.log",
-			/* 	InternalInfoLoggerPath:    "logs.log",
-			InternalWarningLoggerPath: "logs.log", */
 		},
 		SystemgeConfig: &Config.Systemge{
 			HandleMessagesSequentially: false,
@@ -39,6 +37,11 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 				Port:        uint16(port),
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
+			},
+			Endpoint: &Config.TcpEndpoint{
+				Address: "127.0.0.1:" + Helpers.IntToString(int(port)),
+				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+				Domain:  "example.com",
 			},
 			EndpointConfigs: []*Config.TcpEndpoint{
 				{
@@ -60,61 +63,20 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 		},
 	}))
 	if err != nil {
-		panic(Error.New("Failed sending sync message", err))
+		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
+			errorLogger.Log(Error.New("Failed sending async message", err).Error())
+		}
+		websocketClient.Disconnect()
+		return
 	}
-	_, err = responseChannel.ReceiveResponse()
-	if err != nil {
-		panic(Error.New("Failed receiving response", err))
-	}
-	responseChannel, err = node.SyncMessage(Spawner.START_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
-	if err != nil {
-		panic(Error.New("Failed sending sync message", err))
-	}
-	_, err = responseChannel.ReceiveResponse()
-	if err != nil {
-		panic(Error.New("Failed receiving response", err))
-	}
-	tcpEndpointConfig := &Config.TcpEndpoint{
-		Address: "localhost:" + Helpers.IntToString(int(port)),
-		TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-		Domain:  "example.com",
-	}
-	app.mutex.Lock()
-	app.activePorts["spawnedNode"+"-"+websocketClient.GetId()] = tcpEndpointConfig
-	app.mutex.Unlock()
-	node.StartOutgoingConnectionLoop(tcpEndpointConfig)
-	responseChannel, err = node.SyncMessage("ping", "")
-	println(node.GetName() + " sent ping-sync")
-	if err != nil {
-		panic(Error.New("Failed sending sync message", err))
-	}
-	_, err = responseChannel.ReceiveResponse()
-	if err != nil {
-		panic(Error.New("Failed receiving response", err))
-	}
-	println(node.GetName() + " received pong-sync")
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	responseChannel, err := node.SyncMessage(Spawner.STOP_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
+	err := node.AsyncMessage(Spawner.STOP_AND_DESPAWN_NODE_ASYNC, "spawnedNode"+"-"+websocketClient.GetId())
 	if err != nil {
-		panic(Error.New("Failed sending sync message", err))
+		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
+			errorLogger.Log(Error.New("Failed sending async message", err).Error())
+		}
+		return
 	}
-	_, err = responseChannel.ReceiveResponse()
-	if err != nil {
-		panic(Error.New("Failed receiving response", err))
-	}
-	responseChannel, err = node.SyncMessage(Spawner.DESPAWN_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
-	if err != nil {
-		panic(Error.New("Failed sending async message", err))
-	}
-	_, err = responseChannel.ReceiveResponse()
-	if err != nil {
-		panic(Error.New("Failed receiving response", err))
-	}
-	app.mutex.Lock()
-	tcpEndpointConfig := app.activePorts["spawnedNode"+"-"+websocketClient.GetId()]
-	delete(app.activePorts, "spawnedNode"+"-"+websocketClient.GetId())
-	app.mutex.Unlock()
-	node.CancelOutgoingConnectionLoop(tcpEndpointConfig.Address)
 }
