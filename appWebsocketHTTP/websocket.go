@@ -74,7 +74,7 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 	app.mutex.Lock()
 	app.activePorts["spawnedNode"+"-"+websocketClient.GetId()] = tcpEndpointConfig
 	app.mutex.Unlock()
-	node.OutgoingConnectionLoop(tcpEndpointConfig)
+	node.StartOutgoingConnectionLoop(tcpEndpointConfig)
 	responseChannel, err := node.SyncMessage("ping", "")
 	println(node.GetName() + " sent ping-sync")
 	if err != nil {
