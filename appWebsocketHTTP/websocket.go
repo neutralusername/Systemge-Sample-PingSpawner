@@ -66,11 +66,15 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 	if err != nil {
 		panic(Error.New("Failed sending sync message", err))
 	}
-	node.OutgoingConnectionLoop(&Config.TcpEndpoint{
+	tcpEndpointConfig := &Config.TcpEndpoint{
 		Address: "localhost:" + Helpers.IntToString(int(port)),
 		TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 		Domain:  "example.com",
-	})
+	}
+	app.mutex.Lock()
+	app.activePorts["spawnedNode"+"-"+websocketClient.GetId()] = tcpEndpointConfig
+	app.mutex.Unlock()
+	node.OutgoingConnectionLoop(tcpEndpointConfig)
 	responseChannel, err := node.SyncMessage("ping", "")
 	println(node.GetName() + " sent ping-sync")
 	if err != nil {
@@ -84,12 +88,21 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	_, err := node.SyncMessage(Spawner.STOP_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
+	responseChannel, err := node.SyncMessage(Spawner.STOP_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
 	if err != nil {
 		panic(Error.New("Failed sending sync message", err))
+	}
+	_, err = responseChannel.ReceiveResponse()
+	if err != nil {
+		panic(Error.New("Failed receiving response", err))
 	}
 	err = node.AsyncMessage(Spawner.DESPAWN_NODE_ASYNC, "spawnedNode"+"-"+websocketClient.GetId())
 	if err != nil {
 		panic(Error.New("Failed sending async message", err))
 	}
+	app.mutex.Lock()
+	tcpEndpointConfig := app.activePorts["spawnedNode"+"-"+websocketClient.GetId()]
+	delete(app.activePorts, "spawnedNode"+"-"+websocketClient.GetId())
+	app.mutex.Unlock()
+	node.CancelOutgoingConnectionLoop(tcpEndpointConfig.Address)
 }
