@@ -9,7 +9,7 @@ import (
 
 type AppWebsocketHTTP struct {
 	nextSpawnedNodePort *atomic.Uint32
-	activePorts         map[string]*Config.TcpEndpoint
+	activePorts         map[string]*Config.TcpEndpoint // websocketClient.GetId() -> port (for onDisconnectHandler, to stop re-connection attempts to despawned nodes)
 	mutex               sync.Mutex
 }
 
