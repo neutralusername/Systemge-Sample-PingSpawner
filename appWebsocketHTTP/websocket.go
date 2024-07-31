@@ -15,7 +15,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 
 func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
 	port := app.nextSpawnedNodePort.Add(1)
-	_, err := node.SyncMessage(Spawner.SPAWN_NODE_SYNC, Helpers.JsonMarshal(&Config.NewNode{
+	responseChannel, err := node.SyncMessage(Spawner.SPAWN_NODE_SYNC, Helpers.JsonMarshal(&Config.NewNode{
 		NodeConfig: &Config.Node{
 			Name:                      "spawnedNode" + "-" + websocketClient.GetId(),
 			RandomizerSeed:            Tools.GetSystemTime(),
@@ -62,6 +62,10 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 	if err != nil {
 		panic(Error.New("Failed sending sync message", err))
 	}
+	_, err = responseChannel.ReceiveResponse()
+	if err != nil {
+		panic(Error.New("Failed receiving response", err))
+	}
 	_, err = node.SyncMessage(Spawner.START_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
 	if err != nil {
 		panic(Error.New("Failed sending sync message", err))
@@ -75,7 +79,7 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 	app.activePorts["spawnedNode"+"-"+websocketClient.GetId()] = tcpEndpointConfig
 	app.mutex.Unlock()
 	node.StartOutgoingConnectionLoop(tcpEndpointConfig)
-	responseChannel, err := node.SyncMessage("ping", "")
+	responseChannel, err = node.SyncMessage("ping", "")
 	println(node.GetName() + " sent ping-sync")
 	if err != nil {
 		panic(Error.New("Failed sending sync message", err))
