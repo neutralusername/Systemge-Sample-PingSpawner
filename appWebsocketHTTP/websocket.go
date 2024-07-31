@@ -66,9 +66,13 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 	if err != nil {
 		panic(Error.New("Failed receiving response", err))
 	}
-	_, err = node.SyncMessage(Spawner.START_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
+	responseChannel, err = node.SyncMessage(Spawner.START_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
 	if err != nil {
 		panic(Error.New("Failed sending sync message", err))
+	}
+	_, err = responseChannel.ReceiveResponse()
+	if err != nil {
+		panic(Error.New("Failed receiving response", err))
 	}
 	tcpEndpointConfig := &Config.TcpEndpoint{
 		Address: "localhost:" + Helpers.IntToString(int(port)),
