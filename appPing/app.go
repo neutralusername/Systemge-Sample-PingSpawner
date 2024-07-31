@@ -5,6 +5,7 @@ import (
 )
 
 type App struct {
+	isStarted bool
 }
 
 func New() Node.Application {
