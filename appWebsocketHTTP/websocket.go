@@ -104,9 +104,13 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	if err != nil {
 		panic(Error.New("Failed receiving response", err))
 	}
-	err = node.AsyncMessage(Spawner.DESPAWN_NODE_ASYNC, "spawnedNode"+"-"+websocketClient.GetId())
+	responseChannel, err = node.SyncMessage(Spawner.DESPAWN_NODE_SYNC, "spawnedNode"+"-"+websocketClient.GetId())
 	if err != nil {
 		panic(Error.New("Failed sending async message", err))
+	}
+	_, err = responseChannel.ReceiveResponse()
+	if err != nil {
+		panic(Error.New("Failed receiving response", err))
 	}
 	app.mutex.Lock()
 	tcpEndpointConfig := app.activePorts["spawnedNode"+"-"+websocketClient.GetId()]
