@@ -1,8 +1,6 @@
 package appWebsocketHTTP
 
 import (
-	"time"
-
 	"github.com/neutralusername/Systemge/Config"
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/Node"
@@ -30,12 +28,8 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 		},
 		"SpawnedNodeStopped": func(node *Node.Node, message *Message.Message) error {
 			// these operations are done in order to stop the reconnection-attempts to now stopped node
-			// there is currently the issue, that this message is received while the connection is still active, which means cancelling the ongoing connection loop will do nothing
-			// temporary fix is either a delay or limit the reconnection attempts
-			// but i will try to fix this today
-			time.Sleep(1 * time.Second)
 			tcpEndpointConfig := Config.UnmarshalTcpEndpoint(message.GetPayload())
-			node.CancelOutgoingConnectionLoop(tcpEndpointConfig.Address)
+			node.RemoveOutgoingConnection(tcpEndpointConfig.Address)
 			return nil
 		},
 	}
