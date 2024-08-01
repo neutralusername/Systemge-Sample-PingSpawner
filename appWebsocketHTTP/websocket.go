@@ -2,7 +2,6 @@ package appWebsocketHTTP
 
 import (
 	"github.com/neutralusername/Systemge/Config"
-	"github.com/neutralusername/Systemge/Error"
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Node"
 	"github.com/neutralusername/Systemge/Spawner"
@@ -61,20 +60,13 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 		},
 	}))
 	if err != nil {
-		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-			errorLogger.Log(Error.New("Failed sending async message", err).Error())
-		}
-		websocketClient.Disconnect()
-		return
+		panic(err)
 	}
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
 	err := node.AsyncMessage(Spawner.STOP_AND_DESPAWN_NODE_ASYNC, "spawnedNode"+"-"+websocketClient.GetId())
 	if err != nil {
-		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-			errorLogger.Log(Error.New("Failed sending async message", err).Error())
-		}
-		return
+		panic(err)
 	}
 }
