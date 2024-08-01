@@ -20,6 +20,7 @@ func (app *App) OnStart(node *Node.Node) error {
 			if err != nil {
 				panic(err)
 			}
+			println(node.GetName() + " sent ping-async")
 			time.Sleep(1000 * time.Millisecond)
 		}
 	}()
