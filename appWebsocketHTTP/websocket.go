@@ -17,13 +17,11 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 	port := app.nextSpawnedNodePort.Add(1)
 	err := node.AsyncMessage(Spawner.SPAWN_AND_START_NODE_ASYNC, Helpers.JsonMarshal(&Config.NewNode{
 		NodeConfig: &Config.Node{
-			Name:                      "spawnedNode" + "-" + websocketClient.GetId(),
-			RandomizerSeed:            Tools.GetSystemTime(),
-			InfoLoggerPath:            "logs.log",
-			WarningLoggerPath:         "logs.log",
-			ErrorLoggerPath:           "logs.log",
-			InternalInfoLoggerPath:    "logs.log",
-			InternalWarningLoggerPath: "logs.log",
+			Name:              "spawnedNode" + "-" + websocketClient.GetId(),
+			RandomizerSeed:    Tools.GetSystemTime(),
+			InfoLoggerPath:    "logs.log",
+			WarningLoggerPath: "logs.log",
+			ErrorLoggerPath:   "logs.log",
 		},
 		SystemgeConfig: &Config.Systemge{
 			HandleMessagesSequentially: false,
