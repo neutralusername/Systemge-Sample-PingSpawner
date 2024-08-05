@@ -12,7 +12,7 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			println(node.GetName() + " received spawnedNodeStarted")
 			// these operation are done in order for this node to be able to message the spawned node
 			tcpEndpointConfig := Config.UnmarshalTcpEndpoint(message.GetPayload())
-			node.StartOutgoingConnectionLoop(tcpEndpointConfig)
+			node.ConnectToNode(tcpEndpointConfig)
 
 			// ping-pong to check if connection is working
 			responseChannel, err := node.SyncMessage("ping", "")
@@ -31,7 +31,7 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			println(node.GetName() + " received SpawnedNodeStopped")
 			// these operations are done in order to stop the reconnection-attempts to now stopped node
 			tcpEndpointConfig := Config.UnmarshalTcpEndpoint(message.GetPayload())
-			node.RemoveOutgoingConnection(tcpEndpointConfig.Address)
+			node.DisconnectFromNode(tcpEndpointConfig.Address)
 			return nil
 		},
 		"ping": func(node *Node.Node, message *Message.Message) error {
