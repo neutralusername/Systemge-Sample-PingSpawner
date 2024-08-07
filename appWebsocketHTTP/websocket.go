@@ -56,7 +56,6 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 			MaxPayloadSize:           0,
 			MaxTopicSize:             0,
 			MaxSyncTokenSize:         0,
-			SyncResponseLimit:        1,
 		},
 	}))
 	if err != nil {
@@ -65,7 +64,7 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	err := node.AsyncMessage(Spawner.STOP_AND_DESPAWN_NODE_ASYNC, "spawnedNode"+"-"+websocketClient.GetId())
+	err := node.AsyncMessage(Spawner.DESPAWN_NODE_ASYNC, "spawnedNode"+"-"+websocketClient.GetId())
 	if err != nil {
 		panic(err)
 	}
