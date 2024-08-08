@@ -12,7 +12,7 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			println(node.GetName() + " received spawnedNodeStarted")
 			// these operation are done in order for this node to be able to message the spawned node
 			tcpEndpointConfig := Config.UnmarshalTcpEndpoint(message.GetPayload())
-			node.ConnectToNode(tcpEndpointConfig)
+			node.ConnectToNode(tcpEndpointConfig, false)
 
 			// ping-pong to check if connection is working
 			responseChannel, err := node.SyncMessage("ping", "")
