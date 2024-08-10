@@ -23,7 +23,8 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 			ErrorLoggerPath:   "logs.log",
 		},
 		SystemgeConfig: &Config.Systemge{
-			HandleMessagesSequentially: false,
+			ProcessMessagesOfEachConnectionSequentially: true,
+			ProcessAllMessagesSequentially:              false,
 
 			SyncRequestTimeoutMs:            10000,
 			TcpTimeoutMs:                    5000,
