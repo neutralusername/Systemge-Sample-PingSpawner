@@ -1,161 +1,45 @@
 package main
 
 import (
-	"SystemgeSamplePingSpawner/appPing"
-	"SystemgeSamplePingSpawner/appWebsocketHTTP"
-	"net/http"
+	"SystemgeSamplePingSpawner/appPingSpawner"
+	"SystemgeSamplePingSpawner/appWebsocketHttp"
+	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/neutralusername/Systemge/Config"
 	"github.com/neutralusername/Systemge/Dashboard"
-	"github.com/neutralusername/Systemge/Helpers"
-	"github.com/neutralusername/Systemge/Node"
-	"github.com/neutralusername/Systemge/Spawner"
-	"github.com/neutralusername/Systemge/Tools"
 )
 
 const LOGGER_PATH = "logs.log"
 
 func main() {
-	Tools.NewLoggerQueue(LOGGER_PATH, 10000)
-	Dashboard.New(&Config.Dashboard{
-		NodeConfig: &Config.Node{
-			Name:           "dashboard",
-			RandomizerSeed: Tools.GetSystemTime(),
+	Dashboard.NewServer(&Config.DashboardServer{
+		HTTPServerConfig: &Config.HTTPServer{
+			TcpListenerConfig: &Config.TcpListener{
+				Port: 8081,
+			},
 		},
-		ServerConfig: &Config.TcpServer{
-			Port: 8081,
+		WebsocketServerConfig: &Config.WebsocketServer{
+			Pattern:                 "/ws",
+			ClientWatchdogTimeoutMs: 1000 * 60,
+			TcpListenerConfig: &Config.TcpListener{
+				Port: 8444,
+			},
 		},
-		NodeStatusIntervalMs: 1000,
-
-		NodeSystemgeClientCounterIntervalMs:             1000,
-		NodeSystemgeClientRateLimitCounterIntervalMs:    1000,
-		NodeSystemgeClientConnectionCounterIntervalMs:   1000,
-		NodeSystemgeClientAsyncMessageCounterIntervalMs: 1000,
-		NodeSystemgeClientSyncResponseCounterIntervalMs: 1000,
-		NodeSystemgeClientSyncRequestCounterIntervalMs:  1000,
-		NodeSystemgeClientTopicCounterIntervalMs:        1000,
-
-		NodeSystemgeServerCounterIntervalMs:             1000,
-		NodeSystemgeServerRateLimitCounterIntervalMs:    1000,
-		NodeSystemgeServerConnectionCounterIntervalMs:   1000,
-		NodeSystemgeServerAsyncMessageCounterIntervalMs: 1000,
-		NodeSystemgeServerSyncResponseCounterIntervalMs: 1000,
-		NodeSystemgeServerSyncRequestCounterIntervalMs:  1000,
-		NodeSystemgeServerTopicCounterIntervalMs:        1000,
-
-		NodeWebsocketCounterIntervalMs: 1000,
-		HeapUpdateIntervalMs:           1000,
-		NodeSpawnerCounterIntervalMs:   1000,
-		NodeHTTPCounterIntervalMs:      1000,
-		GoroutineUpdateIntervalMs:      1000,
-		AutoStart:                      true,
-		AddDashboardToDashboard:        true,
-	},
-		Spawner.New(&Config.Spawner{
-			PropagateSpawnedNodeChanges: true,
-			NodeConfig: &Config.Node{
-				Name:              "nodeSpawner",
-				RandomizerSeed:    Tools.GetSystemTime(),
-				InfoLoggerPath:    LOGGER_PATH,
-				WarningLoggerPath: LOGGER_PATH,
-				ErrorLoggerPath:   LOGGER_PATH,
-			},
-			SystemgeServerConfig: &Config.SystemgeServer{
-				TcpTimeoutMs: 5000,
-				ProcessMessagesOfEachConnectionSequentially: true,
-				ProcessAllMessagesSequentially:              true,
-				ProcessAllMessagesSequentiallyChannelSize:   10000,
-				ServerConfig: &Config.TcpServer{
-					Port:        60002,
-					TlsCertPath: "MyCertificate.crt",
-					TlsKeyPath:  "MyKey.key",
-				},
-				Endpoint: &Config.TcpEndpoint{
-					Address: "localhost:60002",
-					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-					Domain:  "example.com",
-				},
-				TcpBufferBytes:           1024 * 4,
-				IncomingMessageByteLimit: 0,
-				MaxPayloadSize:           0,
-				MaxTopicSize:             0,
-				MaxSyncTokenSize:         0,
-				MaxNodeNameSize:          0,
-			},
-		}, appPing.New),
-		Node.New(&Config.NewNode{
-			NodeConfig: &Config.Node{
-				Name:              "nodeWebsocketHTTP",
-				RandomizerSeed:    Tools.GetSystemTime(),
-				InfoLoggerPath:    LOGGER_PATH,
-				WarningLoggerPath: LOGGER_PATH,
-				ErrorLoggerPath:   LOGGER_PATH,
-			},
-			SystemgeServerConfig: &Config.SystemgeServer{
-				TcpTimeoutMs: 5000,
-				ProcessMessagesOfEachConnectionSequentially: true,
-				ProcessAllMessagesSequentially:              true,
-				ProcessAllMessagesSequentiallyChannelSize:   10000,
-				ServerConfig: &Config.TcpServer{
-					Port:        60001,
-					TlsCertPath: "MyCertificate.crt",
-					TlsKeyPath:  "MyKey.key",
-				},
-				Endpoint: &Config.TcpEndpoint{
-					Address: "localhost:60001",
-					Domain:  "example.com",
-					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-				},
-				TcpBufferBytes:           1024 * 4,
-				IncomingMessageByteLimit: 0,
-				MaxPayloadSize:           0,
-				MaxTopicSize:             0,
-				MaxSyncTokenSize:         0,
-				MaxNodeNameSize:          0,
-			},
-			SystemgeClientConfig: &Config.SystemgeClient{
-				SyncRequestTimeoutMs:            10000,
-				TcpTimeoutMs:                    5000,
-				MaxConnectionAttempts:           0,
-				ConnectionAttemptDelayMs:        1000,
-				StopAfterOutgoingConnectionLoss: true,
-				EndpointConfigs: []*Config.TcpEndpoint{
-					{
-						Address: "localhost:60002",
-						Domain:  "example.com",
-						TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-					},
-				},
-				TcpBufferBytes:           1024 * 4,
-				IncomingMessageByteLimit: 0,
-				MaxPayloadSize:           0,
-				MaxTopicSize:             0,
-				MaxSyncTokenSize:         0,
-				MaxNodeNameSize:          0,
-			},
-			WebsocketConfig: &Config.Websocket{
-				Pattern: "/ws",
-				ServerConfig: &Config.TcpServer{
-					Port:      8443,
-					Blacklist: []string{},
-					Whitelist: []string{},
-				},
-				HandleClientMessagesSequentially: false,
-				ClientWatchdogTimeoutMs:          20000,
-				Upgrader: &websocket.Upgrader{
-					ReadBufferSize:  1024,
-					WriteBufferSize: 1024,
-					CheckOrigin: func(r *http.Request) bool {
-						return true
-					},
+		SystemgeServerConfig: &Config.SystemgeServer{
+			Name: "dashboardServer",
+			ListenerConfig: &Config.SystemgeListener{
+				TcpListenerConfig: &Config.TcpListener{
+					Port: 60000,
 				},
 			},
-			HttpConfig: &Config.HTTP{
-				ServerConfig: &Config.TcpServer{
-					Port: 8080,
-				},
-			},
-		}, appWebsocketHTTP.New()),
-	).StartBlocking()
+			ConnectionConfig: &Config.SystemgeConnection{},
+		},
+		HeapUpdateIntervalMs:      1000,
+		GoroutineUpdateIntervalMs: 1000,
+		StatusUpdateIntervalMs:    1000,
+		MetricsUpdateIntervalMs:   1000,
+	})
+	appWebsocketHttp.New()
+	appPingSpawner.New()
+	<-make(chan time.Time)
 }

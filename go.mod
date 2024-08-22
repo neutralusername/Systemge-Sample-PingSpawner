@@ -1,8 +1,8 @@
 module SystemgeSamplePingSpawner
 
-go 1.22.3
+go 1.23
 
-//replace github.com/neutralusername/Systemge => ../Systemge
+replace github.com/neutralusername/Systemge => ../Systemge
 
 require (
 	github.com/gorilla/websocket v1.5.3
