@@ -26,7 +26,7 @@ func New() *AppSpawner {
 		mutex:       &sync.Mutex{},
 	}
 
-	messageHandler := SystemgeMessageHandler.New(
+	messageHandler := SystemgeMessageHandler.NewConcurrentMessageHandler(
 		SystemgeMessageHandler.AsyncMessageHandlers{},
 		SystemgeMessageHandler.SyncMessageHandlers{
 			"spawn": func(message *Message.Message) (string, error) {
@@ -46,7 +46,6 @@ func New() *AppSpawner {
 			},
 		},
 		nil, nil,
-		false,
 	)
 	app.systemgeClient = SystemgeClient.New(
 		&Config.SystemgeClient{

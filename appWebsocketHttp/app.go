@@ -28,7 +28,7 @@ type AppWebsocketHTTP struct {
 func New() *AppWebsocketHTTP {
 	app := &AppWebsocketHTTP{}
 
-	messageHandler := SystemgeMessageHandler.New(
+	messageHandler := SystemgeMessageHandler.NewConcurrentMessageHandler(
 		SystemgeMessageHandler.AsyncMessageHandlers{
 			"ping": func(message *Message.Message) {
 				println("received ping-async")
@@ -41,7 +41,6 @@ func New() *AppWebsocketHTTP {
 		},
 		SystemgeMessageHandler.SyncMessageHandlers{},
 		nil, nil,
-		false,
 	)
 	app.systemgeServer = SystemgeServer.New(
 		&Config.SystemgeServer{

@@ -24,7 +24,7 @@ func newAppPing(id string, despawn func()) *AppPing {
 		isStarted: true,
 	}
 
-	messageHandler := SystemgeMessageHandler.New(
+	messageHandler := SystemgeMessageHandler.NewConcurrentMessageHandler(
 		SystemgeMessageHandler.AsyncMessageHandlers{
 			"stop": func(message *Message.Message) {
 				go app.stop()
@@ -37,7 +37,6 @@ func newAppPing(id string, despawn func()) *AppPing {
 			},
 		},
 		nil, nil,
-		false,
 	)
 	app.systemgeClient = SystemgeClient.New(
 		&Config.SystemgeClient{
