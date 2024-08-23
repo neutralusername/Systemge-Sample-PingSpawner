@@ -70,22 +70,7 @@ func New() *AppSpawner {
 			TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			Domain:  "example.com",
 		},
-	}, app.start, app.stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus, nil)
+	}, app.systemgeClient.Start, app.systemgeClient.Stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus, nil)
 
 	return app
-}
-
-func (app *AppSpawner) start() error {
-	err := app.systemgeClient.Start()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (app *AppSpawner) stop() error {
-	if err := app.systemgeClient.Stop(); err != nil {
-		return err
-	}
-	return nil
 }
