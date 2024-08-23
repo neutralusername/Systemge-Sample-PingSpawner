@@ -69,7 +69,7 @@ func newAppPing(id string, despawn func()) *AppPing {
 
 func (app *AppPing) stop() error {
 	app.systemgeClient.Stop()
-	app.dashboardClient.Close()
+	go app.dashboardClient.Close() // would cause deadlock if called from the dashboard without "go". working on a better solution
 	app.despawn()
 	app.isStarted = false
 	return nil
