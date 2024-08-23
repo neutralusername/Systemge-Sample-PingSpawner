@@ -24,6 +24,19 @@ func newAppPing(id string, despawn func()) *AppPing {
 		isStarted: true,
 	}
 
+	messageHandler := SystemgeMessageHandler.New(
+		SystemgeMessageHandler.AsyncMessageHandlers{
+			"stop": func(message *Message.Message) {
+				go app.stop()
+			},
+		},
+		SystemgeMessageHandler.SyncMessageHandlers{
+			"ping": func(message *Message.Message) (string, error) {
+				println("received ping request from", message.GetOrigin())
+				return "", nil
+			},
+		},
+	)
 	app.systemgeClient = SystemgeClient.New(
 		&Config.SystemgeClient{
 			Name: id,
@@ -37,25 +50,12 @@ func newAppPing(id string, despawn func()) *AppPing {
 			ConnectionConfig: &Config.SystemgeConnection{},
 		},
 		func(connection *SystemgeConnection.SystemgeConnection) error {
-			connection.StartProcessingLoopSequentially()
+			connection.StartProcessingLoopSequentially(messageHandler)
 			return nil
 		},
 		func(connection *SystemgeConnection.SystemgeConnection) {
 			connection.StopProcessingLoop()
 		},
-		SystemgeMessageHandler.New(
-			SystemgeMessageHandler.AsyncMessageHandlers{
-				"stop": func(message *Message.Message) {
-					go app.stop()
-				},
-			},
-			SystemgeMessageHandler.SyncMessageHandlers{
-				"ping": func(message *Message.Message) (string, error) {
-					println("received ping request from", message.GetOrigin())
-					return "", nil
-				},
-			},
-		),
 	)
 	app.dashboardClient = Dashboard.NewClient(
 		&Config.DashboardClient{

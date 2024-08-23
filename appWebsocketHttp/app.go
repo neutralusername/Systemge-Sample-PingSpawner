@@ -27,6 +27,20 @@ type AppWebsocketHTTP struct {
 
 func New() *AppWebsocketHTTP {
 	app := &AppWebsocketHTTP{}
+
+	messageHandler := SystemgeMessageHandler.New(
+		SystemgeMessageHandler.AsyncMessageHandlers{
+			"ping": func(message *Message.Message) {
+				println("received ping-async")
+				err := app.systemgeServer.AsyncMessage("pong", "", message.GetOrigin())
+				if err != nil {
+					panic(err)
+				}
+				println("sent pong-async")
+			},
+		},
+		SystemgeMessageHandler.SyncMessageHandlers{},
+	)
 	app.systemgeServer = SystemgeServer.New(
 		&Config.SystemgeServer{
 			Name:              "systemgeServer",
@@ -43,7 +57,7 @@ func New() *AppWebsocketHTTP {
 			ConnectionConfig: &Config.SystemgeConnection{},
 		},
 		func(connection *SystemgeConnection.SystemgeConnection) error {
-			connection.StartProcessingLoopSequentially()
+			connection.StartProcessingLoopSequentially(messageHandler)
 			switch connection.GetName() {
 			case "appSpawner":
 				return nil
@@ -66,19 +80,6 @@ func New() *AppWebsocketHTTP {
 			connection.StopProcessingLoop()
 			println(connection.GetName() + " disconnected")
 		},
-		SystemgeMessageHandler.New(
-			SystemgeMessageHandler.AsyncMessageHandlers{
-				"ping": func(message *Message.Message) {
-					println("received ping-async")
-					err := app.systemgeServer.AsyncMessage("pong", "", message.GetOrigin())
-					if err != nil {
-						panic(err)
-					}
-					println("sent pong-async")
-				},
-			},
-			SystemgeMessageHandler.SyncMessageHandlers{},
-		),
 	)
 	app.websocketServer = WebsocketServer.New(
 		&Config.WebsocketServer{

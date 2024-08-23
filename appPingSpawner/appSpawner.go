@@ -26,6 +26,26 @@ func New() *AppSpawner {
 		mutex:       &sync.Mutex{},
 	}
 
+	messageHandler := SystemgeMessageHandler.New(
+		SystemgeMessageHandler.AsyncMessageHandlers{},
+		SystemgeMessageHandler.SyncMessageHandlers{
+			"spawn": func(message *Message.Message) (string, error) {
+				app.mutex.Lock()
+				defer app.mutex.Unlock()
+
+				if _, ok := app.spawnedApps[message.GetPayload()]; ok {
+					return "", Error.New("app \""+message.GetPayload()+"\" already spawned", nil)
+				}
+				app.spawnedApps[message.GetPayload()] = newAppPing(message.GetPayload(), func() {
+					app.mutex.Lock()
+					defer app.mutex.Unlock()
+
+					delete(app.spawnedApps, message.GetPayload())
+				})
+				return "", nil
+			},
+		},
+	)
 	app.systemgeClient = SystemgeClient.New(
 		&Config.SystemgeClient{
 			Name:              "appSpawner",
@@ -42,32 +62,12 @@ func New() *AppSpawner {
 			ConnectionConfig: &Config.SystemgeConnection{},
 		},
 		func(connection *SystemgeConnection.SystemgeConnection) error {
-			connection.StartProcessingLoopSequentially()
+			connection.StartProcessingLoopSequentially(messageHandler)
 			return nil
 		},
 		func(connection *SystemgeConnection.SystemgeConnection) {
 			connection.StopProcessingLoop()
 		},
-		SystemgeMessageHandler.New(
-			SystemgeMessageHandler.AsyncMessageHandlers{},
-			SystemgeMessageHandler.SyncMessageHandlers{
-				"spawn": func(message *Message.Message) (string, error) {
-					app.mutex.Lock()
-					defer app.mutex.Unlock()
-
-					if _, ok := app.spawnedApps[message.GetPayload()]; ok {
-						return "", Error.New("app \""+message.GetPayload()+"\" already spawned", nil)
-					}
-					app.spawnedApps[message.GetPayload()] = newAppPing(message.GetPayload(), func() {
-						app.mutex.Lock()
-						defer app.mutex.Unlock()
-
-						delete(app.spawnedApps, message.GetPayload())
-					})
-					return "", nil
-				},
-			},
-		),
 	)
 	Dashboard.NewClient(&Config.DashboardClient{
 		Name:             "appSpawner",
