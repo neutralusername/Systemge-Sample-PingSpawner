@@ -45,6 +45,8 @@ func New() *AppSpawner {
 				return "", nil
 			},
 		},
+		nil, nil,
+		false,
 	)
 	app.systemgeClient = SystemgeClient.New(
 		&Config.SystemgeClient{

@@ -40,6 +40,8 @@ func New() *AppWebsocketHTTP {
 			},
 		},
 		SystemgeMessageHandler.SyncMessageHandlers{},
+		nil, nil,
+		false,
 	)
 	app.systemgeServer = SystemgeServer.New(
 		&Config.SystemgeServer{

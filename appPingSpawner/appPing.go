@@ -36,6 +36,8 @@ func newAppPing(id string, despawn func()) *AppPing {
 				return "", nil
 			},
 		},
+		nil, nil,
+		false,
 	)
 	app.systemgeClient = SystemgeClient.New(
 		&Config.SystemgeClient{
