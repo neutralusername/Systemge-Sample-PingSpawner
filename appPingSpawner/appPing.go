@@ -50,18 +50,21 @@ func newAppPing(id string, despawn func()) *AppPing {
 			},
 		),
 	)
-	app.dashboardClient = Dashboard.NewClient(&Config.DashboardClient{
-		Name:             id,
-		ConnectionConfig: &Config.SystemgeConnection{},
-		EndpointConfig: &Config.TcpEndpoint{
-			Address: "localhost:60000",
-			TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-			Domain:  "example.com",
+	app.dashboardClient = Dashboard.NewClient(
+		&Config.DashboardClient{
+			Name:             id,
+			ConnectionConfig: &Config.SystemgeConnection{},
+			EndpointConfig: &Config.TcpEndpoint{
+				Address: "localhost:60000",
+				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+				Domain:  "example.com",
+			},
 		},
-	}, app.systemgeClient.Start, app.stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus, nil)
+		app.systemgeClient.Start, app.stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus,
+		nil,
+	)
 
-	err := app.systemgeClient.Start()
-	if err != nil {
+	if err := app.systemgeClient.Start(); err != nil {
 		panic(err)
 	}
 	return app
