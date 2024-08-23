@@ -9,6 +9,7 @@ import (
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/SystemgeClient"
+	"github.com/neutralusername/Systemge/SystemgeConnection"
 	"github.com/neutralusername/Systemge/SystemgeMessageHandler"
 )
 
@@ -40,7 +41,13 @@ func New() *AppSpawner {
 			},
 			ConnectionConfig: &Config.SystemgeConnection{},
 		},
-		nil, nil,
+		func(connection *SystemgeConnection.SystemgeConnection) error {
+			connection.StartProcessingLoopSequentially()
+			return nil
+		},
+		func(connection *SystemgeConnection.SystemgeConnection) {
+			connection.StopProcessingLoop()
+		},
 		SystemgeMessageHandler.New(
 			SystemgeMessageHandler.AsyncMessageHandlers{},
 			SystemgeMessageHandler.SyncMessageHandlers{

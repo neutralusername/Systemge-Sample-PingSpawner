@@ -172,6 +172,7 @@ func (app *AppWebsocketHTTP) OnConnectHandler(websocketClient *WebsocketServer.W
 	if response.GetTopic() == Message.TOPIC_FAILURE {
 		panic(Error.New("response is failure", nil))
 	}
+	println("test")
 	return nil
 }
 
