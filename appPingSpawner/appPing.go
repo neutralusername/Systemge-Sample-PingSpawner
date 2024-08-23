@@ -11,13 +11,17 @@ import (
 
 type AppPing struct {
 	isStarted bool
+	despawn   func()
 
 	systemgeClient  *SystemgeClient.SystemgeClient
 	dashboardClient *Dashboard.DashboardClient
 }
 
-func newAppPing(id string) *AppPing {
-	app := &AppPing{}
+func newAppPing(id string, despawn func()) *AppPing {
+	app := &AppPing{
+		despawn:   despawn,
+		isStarted: true,
+	}
 
 	app.systemgeClient = SystemgeClient.New(
 		&Config.SystemgeClient{
@@ -33,7 +37,11 @@ func newAppPing(id string) *AppPing {
 		},
 		nil, nil,
 		SystemgeMessageHandler.New(
-			SystemgeMessageHandler.AsyncMessageHandlers{},
+			SystemgeMessageHandler.AsyncMessageHandlers{
+				"stop": func(message *Message.Message) {
+					go app.stop()
+				},
+			},
 			SystemgeMessageHandler.SyncMessageHandlers{
 				"ping": func(message *Message.Message) (string, error) {
 					println("received ping request from", message.GetOrigin())
@@ -60,11 +68,13 @@ func newAppPing(id string) *AppPing {
 }
 
 func (app *AppPing) stop() error {
-	err := app.systemgeClient.Stop()
-	if err != nil {
-		println("error stopping app", err)
-	}
+	println("t1")
+	app.systemgeClient.Stop()
+	println("t2")
 	app.dashboardClient.Close()
+	println("t3")
+	app.despawn()
+	println("t4")
 	app.isStarted = false
 	return nil
 }

@@ -158,12 +158,5 @@ func (app *AppWebsocketHTTP) OnConnectHandler(websocketClient *WebsocketServer.W
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(websocketClient *WebsocketServer.WebsocketClient) {
-	responseChannel, err := app.systemgeServer.SyncRequest("despawn", websocketClient.GetId(), "appSpawner")
-	if err != nil {
-		panic(err)
-	}
-	response := <-responseChannel
-	if response == nil {
-		panic(Error.New("response is nil", nil))
-	}
+	app.systemgeServer.AsyncMessage("stop", "", websocketClient.GetId())
 }

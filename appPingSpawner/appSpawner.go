@@ -51,19 +51,12 @@ func New() *AppSpawner {
 					if _, ok := app.spawnedApps[message.GetPayload()]; ok {
 						return "", Error.New("app \""+message.GetPayload()+"\" already spawned", nil)
 					}
-					app.spawnedApps[message.GetPayload()] = newAppPing(message.GetPayload())
-					return "", nil
-				},
-				"despawn": func(message *Message.Message) (string, error) {
-					app.mutex.Lock()
-					defer app.mutex.Unlock()
+					app.spawnedApps[message.GetPayload()] = newAppPing(message.GetPayload(), func() {
+						app.mutex.Lock()
+						defer app.mutex.Unlock()
 
-					pingApp := app.spawnedApps[message.GetPayload()]
-					if pingApp == nil {
-						return "", Error.New("app \""+message.GetPayload()+"\" not spawned", nil)
-					}
-					pingApp.stop()
-					delete(app.spawnedApps, message.GetPayload())
+						delete(app.spawnedApps, message.GetPayload())
+					})
 					return "", nil
 				},
 			},
