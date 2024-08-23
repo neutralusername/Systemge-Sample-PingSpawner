@@ -68,13 +68,9 @@ func newAppPing(id string, despawn func()) *AppPing {
 }
 
 func (app *AppPing) stop() error {
-	println("t1")
 	app.systemgeClient.Stop()
-	println("t2")
 	app.dashboardClient.Close()
-	println("t3")
 	app.despawn()
-	println("t4")
 	app.isStarted = false
 	return nil
 }
