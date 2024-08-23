@@ -6,6 +6,7 @@ import (
 	"github.com/neutralusername/Systemge/Config"
 	"github.com/neutralusername/Systemge/Dashboard"
 	"github.com/neutralusername/Systemge/Error"
+	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/SystemgeClient"
 	"github.com/neutralusername/Systemge/SystemgeMessageHandler"
@@ -26,10 +27,15 @@ func New() *AppSpawner {
 
 	app.systemgeClient = SystemgeClient.New(
 		&Config.SystemgeClient{
-			Name: "appSpawner",
+			Name:              "appSpawner",
+			InfoLoggerPath:    "logs.log",
+			WarningLoggerPath: "logs.log",
+			ErrorLoggerPath:   "logs.log",
 			EndpointConfigs: []*Config.TcpEndpoint{
 				{
 					Address: "localhost:60001",
+					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+					Domain:  "example.com",
 				},
 			},
 			ConnectionConfig: &Config.SystemgeConnection{},
@@ -68,6 +74,8 @@ func New() *AppSpawner {
 		ConnectionConfig: &Config.SystemgeConnection{},
 		EndpointConfig: &Config.TcpEndpoint{
 			Address: "localhost:60000",
+			TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+			Domain:  "example.com",
 		},
 	}, app.start, app.stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus, nil)
 

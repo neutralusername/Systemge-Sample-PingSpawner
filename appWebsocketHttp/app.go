@@ -7,6 +7,7 @@ import (
 	"github.com/neutralusername/Systemge/Dashboard"
 	"github.com/neutralusername/Systemge/Error"
 	"github.com/neutralusername/Systemge/HTTPServer"
+	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/Status"
 	"github.com/neutralusername/Systemge/SystemgeConnection"
@@ -28,10 +29,15 @@ func New() *AppWebsocketHTTP {
 	app := &AppWebsocketHTTP{}
 	app.systemgeServer = SystemgeServer.New(
 		&Config.SystemgeServer{
-			Name: "systemgeServer",
+			Name:              "systemgeServer",
+			InfoLoggerPath:    "logs.log",
+			WarningLoggerPath: "logs.log",
+			ErrorLoggerPath:   "logs.log",
 			ListenerConfig: &Config.SystemgeListener{
 				TcpListenerConfig: &Config.TcpListener{
-					Port: 60001,
+					TlsCertPath: "MyCertificate.crt",
+					TlsKeyPath:  "MyKey.key",
+					Port:        60001,
 				},
 			},
 			ConnectionConfig: &Config.SystemgeConnection{},
@@ -86,6 +92,8 @@ func New() *AppWebsocketHTTP {
 		ConnectionConfig: &Config.SystemgeConnection{},
 		EndpointConfig: &Config.TcpEndpoint{
 			Address: "localhost:60000",
+			TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+			Domain:  "example.com",
 		},
 	}, app.start, app.stop, app.systemgeServer.GetMetrics, app.getStatus, nil)
 	return app
@@ -157,8 +165,5 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(websocketClient *WebsocketServe
 	response := <-responseChannel
 	if response == nil {
 		panic(Error.New("response is nil", nil))
-	}
-	if response.GetTopic() == Message.TOPIC_FAILURE {
-		panic(Error.New("response is failure", nil))
 	}
 }
