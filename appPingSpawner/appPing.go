@@ -7,7 +7,6 @@ import (
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/SystemgeClient"
 	"github.com/neutralusername/Systemge/SystemgeConnection"
-	"github.com/neutralusername/Systemge/SystemgeMessageHandler"
 )
 
 type AppPing struct {
@@ -24,14 +23,14 @@ func newAppPing(id string, despawn func()) *AppPing {
 		isStarted: true,
 	}
 
-	messageHandler := SystemgeMessageHandler.NewConcurrentMessageHandler(
-		SystemgeMessageHandler.AsyncMessageHandlers{
-			"stop": func(message *Message.Message) {
+	messageHandler := SystemgeConnection.NewConcurrentMessageHandler(
+		SystemgeConnection.AsyncMessageHandlers{
+			"stop": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) {
 				go app.stop()
 			},
 		},
-		SystemgeMessageHandler.SyncMessageHandlers{
-			"ping": func(message *Message.Message) (string, error) {
+		SystemgeConnection.SyncMessageHandlers{
+			"ping": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
 				println("received ping request from", message.GetOrigin())
 				return "", nil
 			},

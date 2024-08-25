@@ -11,7 +11,6 @@ import (
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/Status"
 	"github.com/neutralusername/Systemge/SystemgeConnection"
-	"github.com/neutralusername/Systemge/SystemgeMessageHandler"
 	"github.com/neutralusername/Systemge/SystemgeServer"
 	"github.com/neutralusername/Systemge/WebsocketServer"
 )
@@ -28,9 +27,9 @@ type AppWebsocketHTTP struct {
 func New() *AppWebsocketHTTP {
 	app := &AppWebsocketHTTP{}
 
-	messageHandler := SystemgeMessageHandler.NewConcurrentMessageHandler(
-		SystemgeMessageHandler.AsyncMessageHandlers{
-			"ping": func(message *Message.Message) {
+	messageHandler := SystemgeConnection.NewConcurrentMessageHandler(
+		SystemgeConnection.AsyncMessageHandlers{
+			"ping": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) {
 				println("received ping-async")
 				err := app.systemgeServer.AsyncMessage("pong", "", message.GetOrigin())
 				if err != nil {
@@ -39,7 +38,7 @@ func New() *AppWebsocketHTTP {
 				println("sent pong-async")
 			},
 		},
-		SystemgeMessageHandler.SyncMessageHandlers{},
+		SystemgeConnection.SyncMessageHandlers{},
 		nil, nil,
 	)
 	app.systemgeServer = SystemgeServer.New(

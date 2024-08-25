@@ -10,7 +10,6 @@ import (
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/SystemgeClient"
 	"github.com/neutralusername/Systemge/SystemgeConnection"
-	"github.com/neutralusername/Systemge/SystemgeMessageHandler"
 )
 
 type AppSpawner struct {
@@ -26,10 +25,10 @@ func New() *AppSpawner {
 		mutex:       &sync.Mutex{},
 	}
 
-	messageHandler := SystemgeMessageHandler.NewConcurrentMessageHandler(
-		SystemgeMessageHandler.AsyncMessageHandlers{},
-		SystemgeMessageHandler.SyncMessageHandlers{
-			"spawn": func(message *Message.Message) (string, error) {
+	messageHandler := SystemgeConnection.NewConcurrentMessageHandler(
+		SystemgeConnection.AsyncMessageHandlers{},
+		SystemgeConnection.SyncMessageHandlers{
+			"spawn": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
 				app.mutex.Lock()
 				defer app.mutex.Unlock()
 
