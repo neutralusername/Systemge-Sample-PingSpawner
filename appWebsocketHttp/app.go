@@ -114,7 +114,7 @@ func New() *AppWebsocketHTTP {
 		},
 		app.start, app.stop, app.systemgeServer.GetMetrics, app.getStatus,
 		nil,
-	)
+	).Start()
 	return app
 }
 

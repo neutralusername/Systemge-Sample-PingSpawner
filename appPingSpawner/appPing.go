@@ -26,7 +26,7 @@ func newAppPing(id string, despawn func()) *AppPing {
 	messageHandler := SystemgeConnection.NewConcurrentMessageHandler(
 		SystemgeConnection.AsyncMessageHandlers{
 			"stop": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) {
-				go app.stop()
+				go app.close()
 			},
 		},
 		SystemgeConnection.SyncMessageHandlers{
@@ -67,19 +67,21 @@ func newAppPing(id string, despawn func()) *AppPing {
 				Domain:  "example.com",
 			},
 		},
-		app.systemgeClient.Start, app.stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus,
+		app.systemgeClient.Start, app.close, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus,
 		nil,
 	)
-
+	if err := app.dashboardClient.Start(); err != nil {
+		panic(err)
+	}
 	if err := app.systemgeClient.Start(); err != nil {
 		panic(err)
 	}
 	return app
 }
 
-func (app *AppPing) stop() error {
+func (app *AppPing) close() error {
 	app.systemgeClient.Stop()
-	app.dashboardClient.Close()
+	app.dashboardClient.Stop()
 	app.despawn()
 	app.isStarted = false
 	return nil

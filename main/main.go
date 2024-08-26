@@ -46,7 +46,7 @@ func main() {
 		GoroutineUpdateIntervalMs: 1000,
 		StatusUpdateIntervalMs:    1000,
 		MetricsUpdateIntervalMs:   1000,
-	})
+	}).Start()
 	appWebsocketHttp.New()
 	appPingSpawner.New()
 	<-make(chan time.Time)

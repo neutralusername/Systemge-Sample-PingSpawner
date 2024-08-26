@@ -77,7 +77,9 @@ func New() *AppSpawner {
 			TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			Domain:  "example.com",
 		},
-	}, app.systemgeClient.Start, app.systemgeClient.Stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus, nil)
+	}, app.systemgeClient.Start, app.systemgeClient.Stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus,
+		nil,
+	).Start()
 
 	return app
 }
