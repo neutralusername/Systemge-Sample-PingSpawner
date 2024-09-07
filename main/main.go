@@ -14,9 +14,6 @@ const LOGGER_PATH = "logs.log"
 func main() {
 	Dashboard.NewServer("dashboardServer",
 		&Config.DashboardServer{
-			InfoLoggerPath:    LOGGER_PATH,
-			WarningLoggerPath: LOGGER_PATH,
-			ErrorLoggerPath:   LOGGER_PATH,
 			HTTPServerConfig: &Config.HTTPServer{
 				TcpServerConfig: &Config.TcpServer{
 					Port: 8081,
@@ -30,9 +27,6 @@ func main() {
 				},
 			},
 			SystemgeServerConfig: &Config.SystemgeServer{
-				InfoLoggerPath:    LOGGER_PATH,
-				WarningLoggerPath: LOGGER_PATH,
-				ErrorLoggerPath:   LOGGER_PATH,
 				ListenerConfig: &Config.TcpSystemgeListener{
 					TcpServerConfig: &Config.TcpServer{
 						TlsCertPath: "MyCertificate.crt",

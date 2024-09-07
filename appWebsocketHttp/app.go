@@ -43,9 +43,6 @@ func New() *AppWebsocketHTTP {
 	)
 	app.systemgeServer = SystemgeServer.New("systemgeServer",
 		&Config.SystemgeServer{
-			InfoLoggerPath:    "logs.log",
-			WarningLoggerPath: "logs.log",
-			ErrorLoggerPath:   "logs.log",
 			ListenerConfig: &Config.TcpSystemgeListener{
 				TcpServerConfig: &Config.TcpServer{
 					TlsCertPath: "MyCertificate.crt",

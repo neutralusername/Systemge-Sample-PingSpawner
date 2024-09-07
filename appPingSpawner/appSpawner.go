@@ -48,9 +48,6 @@ func New() *AppSpawner {
 	)
 	app.systemgeClient = SystemgeClient.New("appSpawner",
 		&Config.SystemgeClient{
-			InfoLoggerPath:    "logs.log",
-			WarningLoggerPath: "logs.log",
-			ErrorLoggerPath:   "logs.log",
 			ClientConfigs: []*Config.TcpClient{
 				{
 					Address: "localhost:60001",
