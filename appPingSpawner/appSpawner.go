@@ -28,7 +28,7 @@ func New() *AppSpawner {
 	messageHandler := SystemgeConnection.NewConcurrentMessageHandler(
 		SystemgeConnection.AsyncMessageHandlers{},
 		SystemgeConnection.SyncMessageHandlers{
-			"spawn": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
+			"spawn": func(connection SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
 				app.mutex.Lock()
 				defer app.mutex.Unlock()
 
@@ -46,38 +46,37 @@ func New() *AppSpawner {
 		},
 		nil, nil,
 	)
-	app.systemgeClient = SystemgeClient.New(
+	app.systemgeClient = SystemgeClient.New("appSpawner",
 		&Config.SystemgeClient{
-			Name:              "appSpawner",
 			InfoLoggerPath:    "logs.log",
 			WarningLoggerPath: "logs.log",
 			ErrorLoggerPath:   "logs.log",
-			EndpointConfigs: []*Config.TcpEndpoint{
+			ClientConfigs: []*Config.TcpClient{
 				{
 					Address: "localhost:60001",
 					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 					Domain:  "example.com",
 				},
 			},
-			ConnectionConfig: &Config.SystemgeConnection{},
+			ConnectionConfig: &Config.TcpSystemgeConnection{},
 		},
-		func(connection *SystemgeConnection.SystemgeConnection) error {
+		func(connection SystemgeConnection.SystemgeConnection) error {
 			connection.StartProcessingLoopSequentially(messageHandler)
 			return nil
 		},
-		func(connection *SystemgeConnection.SystemgeConnection) {
+		func(connection SystemgeConnection.SystemgeConnection) {
 			connection.StopProcessingLoop()
 		},
 	)
-	Dashboard.NewClient(&Config.DashboardClient{
-		Name:             "appSpawner",
-		ConnectionConfig: &Config.SystemgeConnection{},
-		EndpointConfig: &Config.TcpEndpoint{
-			Address: "localhost:60000",
-			TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-			Domain:  "example.com",
-		},
-	}, app.systemgeClient.Start, app.systemgeClient.Stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus,
+	Dashboard.NewClient("appSpawner",
+		&Config.DashboardClient{
+			ConnectionConfig: &Config.TcpSystemgeConnection{},
+			ClientConfig: &Config.TcpClient{
+				Address: "localhost:60000",
+				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+				Domain:  "example.com",
+			},
+		}, app.systemgeClient.Start, app.systemgeClient.Stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus,
 		nil,
 	).Start()
 

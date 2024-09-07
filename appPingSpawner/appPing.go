@@ -14,7 +14,7 @@ type AppPing struct {
 	despawn   func()
 
 	systemgeClient  *SystemgeClient.SystemgeClient
-	dashboardClient *Dashboard.DashboardClient
+	dashboardClient *Dashboard.Client
 }
 
 func newAppPing(id string, despawn func()) *AppPing {
@@ -25,43 +25,41 @@ func newAppPing(id string, despawn func()) *AppPing {
 
 	messageHandler := SystemgeConnection.NewConcurrentMessageHandler(
 		SystemgeConnection.AsyncMessageHandlers{
-			"stop": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) {
+			"stop": func(connection SystemgeConnection.SystemgeConnection, message *Message.Message) {
 				go app.close()
 			},
 		},
 		SystemgeConnection.SyncMessageHandlers{
-			"ping": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
+			"ping": func(connection SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
 				println("received ping request from", message.GetOrigin())
 				return "", nil
 			},
 		},
 		nil, nil,
 	)
-	app.systemgeClient = SystemgeClient.New(
+	app.systemgeClient = SystemgeClient.New(id,
 		&Config.SystemgeClient{
-			Name: id,
-			EndpointConfigs: []*Config.TcpEndpoint{
+			ClientConfigs: []*Config.TcpClient{
 				{
 					Address: "localhost:60001",
 					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 					Domain:  "example.com",
 				},
 			},
-			ConnectionConfig: &Config.SystemgeConnection{},
+			ConnectionConfig: &Config.TcpSystemgeConnection{},
 		},
-		func(connection *SystemgeConnection.SystemgeConnection) error {
+		func(connection SystemgeConnection.SystemgeConnection) error {
 			connection.StartProcessingLoopSequentially(messageHandler)
 			return nil
 		},
-		func(connection *SystemgeConnection.SystemgeConnection) {
+		func(connection SystemgeConnection.SystemgeConnection) {
 			connection.StopProcessingLoop()
 		},
 	)
-	app.dashboardClient = Dashboard.NewClient(
+	app.dashboardClient = Dashboard.NewClient(id,
 		&Config.DashboardClient{
-			Name:             id,
-			ConnectionConfig: &Config.SystemgeConnection{},
-			EndpointConfig: &Config.TcpEndpoint{
+			ConnectionConfig: &Config.TcpSystemgeConnection{},
+			ClientConfig: &Config.TcpClient{
 				Address: "localhost:60000",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 				Domain:  "example.com",

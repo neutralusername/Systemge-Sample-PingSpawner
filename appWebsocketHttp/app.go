@@ -29,7 +29,7 @@ func New() *AppWebsocketHTTP {
 
 	messageHandler := SystemgeConnection.NewConcurrentMessageHandler(
 		SystemgeConnection.AsyncMessageHandlers{
-			"ping": func(connection *SystemgeConnection.SystemgeConnection, message *Message.Message) {
+			"ping": func(connection SystemgeConnection.SystemgeConnection, message *Message.Message) {
 				println("received ping-async")
 				err := app.systemgeServer.AsyncMessage("pong", "", message.GetOrigin())
 				if err != nil {
@@ -41,22 +41,21 @@ func New() *AppWebsocketHTTP {
 		SystemgeConnection.SyncMessageHandlers{},
 		nil, nil,
 	)
-	app.systemgeServer = SystemgeServer.New(
+	app.systemgeServer = SystemgeServer.New("systemgeServer",
 		&Config.SystemgeServer{
-			Name:              "systemgeServer",
 			InfoLoggerPath:    "logs.log",
 			WarningLoggerPath: "logs.log",
 			ErrorLoggerPath:   "logs.log",
-			ListenerConfig: &Config.SystemgeListener{
-				TcpListenerConfig: &Config.TcpListener{
+			ListenerConfig: &Config.TcpSystemgeListener{
+				TcpServerConfig: &Config.TcpServer{
 					TlsCertPath: "MyCertificate.crt",
 					TlsKeyPath:  "MyKey.key",
 					Port:        60001,
 				},
 			},
-			ConnectionConfig: &Config.SystemgeConnection{},
+			ConnectionConfig: &Config.TcpSystemgeConnection{},
 		},
-		func(connection *SystemgeConnection.SystemgeConnection) error {
+		func(connection SystemgeConnection.SystemgeConnection) error {
 			connection.StartProcessingLoopSequentially(messageHandler)
 			switch connection.GetName() {
 			case "appSpawner":
@@ -76,25 +75,25 @@ func New() *AppWebsocketHTTP {
 				return nil
 			}
 		},
-		func(connection *SystemgeConnection.SystemgeConnection) {
+		func(connection SystemgeConnection.SystemgeConnection) {
 			connection.StopProcessingLoop()
 			println(connection.GetName() + " disconnected")
 		},
 	)
-	app.websocketServer = WebsocketServer.New(
+	app.websocketServer = WebsocketServer.New("appWebsocketHttp_websocketServer",
 		&Config.WebsocketServer{
 			ClientWatchdogTimeoutMs: 1000 * 60,
 			Pattern:                 "/ws",
-			TcpListenerConfig: &Config.TcpListener{
+			TcpServerConfig: &Config.TcpServer{
 				Port: 8443,
 			},
 		},
 		WebsocketServer.MessageHandlers{},
 		app.OnConnectHandler, app.OnDisconnectHandler,
 	)
-	app.httpServer = HTTPServer.New(
+	app.httpServer = HTTPServer.New("httpServer",
 		&Config.HTTPServer{
-			TcpListenerConfig: &Config.TcpListener{
+			TcpServerConfig: &Config.TcpServer{
 				Port: 8080,
 			},
 		},
@@ -102,11 +101,10 @@ func New() *AppWebsocketHTTP {
 			"/": HTTPServer.SendDirectory("../frontend"),
 		},
 	)
-	Dashboard.NewClient(
+	Dashboard.NewClient("appWebsocketHttp_dashboardClient",
 		&Config.DashboardClient{
-			Name:             "appWebsocketHttp",
-			ConnectionConfig: &Config.SystemgeConnection{},
-			EndpointConfig: &Config.TcpEndpoint{
+			ConnectionConfig: &Config.TcpSystemgeConnection{},
+			ClientConfig: &Config.TcpClient{
 				Address: "localhost:60000",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 				Domain:  "example.com",
