@@ -41,6 +41,7 @@ func main() {
 			StatusUpdateIntervalMs:    1000,
 			MetricsUpdateIntervalMs:   1000,
 		},
+		nil, nil,
 	).Start()
 	appWebsocketHttp.New()
 	appPingSpawner.New()
