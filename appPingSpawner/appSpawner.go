@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/neutralusername/Systemge/Config"
-	"github.com/neutralusername/Systemge/Dashboard"
+	"github.com/neutralusername/Systemge/DashboardClientCustomService"
 	"github.com/neutralusername/Systemge/Error"
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
@@ -48,14 +48,14 @@ func New() *AppSpawner {
 	)
 	app.systemgeClient = SystemgeClient.New("appSpawner",
 		&Config.SystemgeClient{
-			ClientConfigs: []*Config.TcpClient{
+			TcpClientConfigs: []*Config.TcpClient{
 				{
 					Address: "localhost:60001",
 					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 					Domain:  "example.com",
 				},
 			},
-			ConnectionConfig: &Config.TcpSystemgeConnection{},
+			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 		},
 		func(connection SystemgeConnection.SystemgeConnection) error {
 			connection.StartProcessingLoopSequentially(messageHandler)
@@ -65,15 +65,15 @@ func New() *AppSpawner {
 			connection.StopProcessingLoop()
 		},
 	)
-	Dashboard.NewClient("appSpawner",
+	DashboardClientCustomService.New("appSpawner",
 		&Config.DashboardClient{
-			ConnectionConfig: &Config.TcpSystemgeConnection{},
-			ClientConfig: &Config.TcpClient{
+			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
+			TcpClientConfig: &Config.TcpClient{
 				Address: "localhost:60000",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 				Domain:  "example.com",
 			},
-		}, app.systemgeClient.Start, app.systemgeClient.Stop, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus,
+		}, app.systemgeClient,
 		nil,
 	).Start()
 

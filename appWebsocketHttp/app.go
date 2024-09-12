@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/neutralusername/Systemge/Config"
-	"github.com/neutralusername/Systemge/Dashboard"
+	"github.com/neutralusername/Systemge/DashboardClientCustomService"
 	"github.com/neutralusername/Systemge/Error"
 	"github.com/neutralusername/Systemge/HTTPServer"
 	"github.com/neutralusername/Systemge/Helpers"
@@ -43,14 +43,14 @@ func New() *AppWebsocketHTTP {
 	)
 	app.systemgeServer = SystemgeServer.New("systemgeServer",
 		&Config.SystemgeServer{
-			ListenerConfig: &Config.TcpSystemgeListener{
+			TcpSystemgeListenerConfig: &Config.TcpSystemgeListener{
 				TcpServerConfig: &Config.TcpServer{
 					TlsCertPath: "MyCertificate.crt",
 					TlsKeyPath:  "MyKey.key",
 					Port:        60001,
 				},
 			},
-			ConnectionConfig: &Config.TcpSystemgeConnection{},
+			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 		},
 		nil, nil,
 		func(connection SystemgeConnection.SystemgeConnection) error {
@@ -101,26 +101,30 @@ func New() *AppWebsocketHTTP {
 			"/": HTTPServer.SendDirectory("../frontend"),
 		},
 	)
-	Dashboard.NewClient("appWebsocketHttp_dashboardClient",
+	DashboardClientCustomService.New("appWebsocketHttp_dashboardClient",
 		&Config.DashboardClient{
-			ConnectionConfig: &Config.TcpSystemgeConnection{},
-			ClientConfig: &Config.TcpClient{
+			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
+			TcpClientConfig: &Config.TcpClient{
 				Address: "localhost:60000",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 				Domain:  "example.com",
 			},
 		},
-		app.start, app.stop, app.systemgeServer.GetMetrics, app.getStatus,
+		app,
 		nil,
 	).Start()
 	return app
 }
 
-func (app *AppWebsocketHTTP) getStatus() int {
+func (app *AppWebsocketHTTP) GetMetrics() map[string]uint64 {
+	return map[string]uint64{}
+}
+
+func (app *AppWebsocketHTTP) GetStatus() int {
 	return app.status
 }
 
-func (app *AppWebsocketHTTP) start() error {
+func (app *AppWebsocketHTTP) Start() error {
 	app.statusMutex.Lock()
 	defer app.statusMutex.Unlock()
 	if app.status != Status.STOPPED {
@@ -142,7 +146,7 @@ func (app *AppWebsocketHTTP) start() error {
 	return nil
 }
 
-func (app *AppWebsocketHTTP) stop() error {
+func (app *AppWebsocketHTTP) Stop() error {
 	app.statusMutex.Lock()
 	defer app.statusMutex.Unlock()
 	if app.status != Status.STARTED {

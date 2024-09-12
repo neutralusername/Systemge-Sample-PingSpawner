@@ -2,7 +2,7 @@ package appPingSpawner
 
 import (
 	"github.com/neutralusername/Systemge/Config"
-	"github.com/neutralusername/Systemge/Dashboard"
+	"github.com/neutralusername/Systemge/DashboardClientCustomService"
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/SystemgeClient"
@@ -14,7 +14,7 @@ type AppPing struct {
 	despawn   func()
 
 	systemgeClient  *SystemgeClient.SystemgeClient
-	dashboardClient *Dashboard.Client
+	dashboardClient *DashboardClientCustomService.Client
 }
 
 func newAppPing(id string, despawn func()) *AppPing {
@@ -39,14 +39,14 @@ func newAppPing(id string, despawn func()) *AppPing {
 	)
 	app.systemgeClient = SystemgeClient.New(id,
 		&Config.SystemgeClient{
-			ClientConfigs: []*Config.TcpClient{
+			TcpClientConfigs: []*Config.TcpClient{
 				{
 					Address: "localhost:60001",
 					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 					Domain:  "example.com",
 				},
 			},
-			ConnectionConfig: &Config.TcpSystemgeConnection{},
+			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 		},
 		func(connection SystemgeConnection.SystemgeConnection) error {
 			connection.StartProcessingLoopSequentially(messageHandler)
@@ -56,16 +56,16 @@ func newAppPing(id string, despawn func()) *AppPing {
 			connection.StopProcessingLoop()
 		},
 	)
-	app.dashboardClient = Dashboard.NewClient(id,
+	app.dashboardClient = DashboardClientCustomService.New(id,
 		&Config.DashboardClient{
-			ConnectionConfig: &Config.TcpSystemgeConnection{},
-			ClientConfig: &Config.TcpClient{
+			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
+			TcpClientConfig: &Config.TcpClient{
 				Address: "localhost:60000",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 				Domain:  "example.com",
 			},
 		},
-		app.systemgeClient.Start, app.close, app.systemgeClient.GetMetrics, app.systemgeClient.GetStatus,
+		app.systemgeClient,
 		nil,
 	)
 	if err := app.dashboardClient.Start(); err != nil {
