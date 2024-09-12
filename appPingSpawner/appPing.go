@@ -56,7 +56,7 @@ func newAppPing(id string, despawn func()) *AppPing {
 			connection.StopProcessingLoop()
 		},
 	)
-	app.dashboardClient = DashboardClientCustomService.New(id,
+	app.dashboardClient = DashboardClientCustomService.New_(id,
 		&Config.DashboardClient{
 			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 			TcpClientConfig: &Config.TcpClient{
@@ -65,7 +65,7 @@ func newAppPing(id string, despawn func()) *AppPing {
 				Domain:  "example.com",
 			},
 		},
-		app.systemgeClient,
+		app.systemgeClient.Start, app.close, app.systemgeClient.GetStatus, app.systemgeClient.GetMetrics,
 		nil,
 	)
 	if err := app.dashboardClient.Start(); err != nil {
