@@ -9,6 +9,7 @@ import (
 	"github.com/neutralusername/Systemge/HTTPServer"
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
+	"github.com/neutralusername/Systemge/Metrics"
 	"github.com/neutralusername/Systemge/Status"
 	"github.com/neutralusername/Systemge/SystemgeConnection"
 	"github.com/neutralusername/Systemge/SystemgeServer"
@@ -54,7 +55,7 @@ func New() *AppWebsocketHTTP {
 		},
 		nil, nil,
 		func(connection SystemgeConnection.SystemgeConnection) error {
-			connection.StartProcessingLoopSequentially(messageHandler)
+			connection.StartMessageHandlingLoop_Sequentially(messageHandler)
 			switch connection.GetName() {
 			case "appSpawner":
 				return nil
@@ -74,7 +75,7 @@ func New() *AppWebsocketHTTP {
 			}
 		},
 		func(connection SystemgeConnection.SystemgeConnection) {
-			connection.StopProcessingLoop()
+			connection.StopMessageHandlingLoop()
 			println(connection.GetName() + " disconnected")
 		},
 	)
@@ -116,8 +117,8 @@ func New() *AppWebsocketHTTP {
 	return app
 }
 
-func (app *AppWebsocketHTTP) GetMetrics() map[string]uint64 {
-	return map[string]uint64{}
+func (app *AppWebsocketHTTP) GetMetrics() Metrics.MetricsTypes {
+	return Metrics.MetricsTypes{}
 }
 
 func (app *AppWebsocketHTTP) GetStatus() int {

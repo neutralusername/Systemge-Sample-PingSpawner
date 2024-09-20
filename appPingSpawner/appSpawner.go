@@ -58,11 +58,11 @@ func New() *AppSpawner {
 			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 		},
 		func(connection SystemgeConnection.SystemgeConnection) error {
-			connection.StartProcessingLoopSequentially(messageHandler)
+			connection.StartMessageHandlingLoop_Sequentially(messageHandler)
 			return nil
 		},
 		func(connection SystemgeConnection.SystemgeConnection) {
-			connection.StopProcessingLoop()
+			connection.StopMessageHandlingLoop()
 		},
 	)
 	DashboardClientCustomService.New("appSpawner",

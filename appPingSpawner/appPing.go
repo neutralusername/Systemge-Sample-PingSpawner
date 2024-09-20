@@ -2,6 +2,7 @@ package appPingSpawner
 
 import (
 	"github.com/neutralusername/Systemge/Config"
+	"github.com/neutralusername/Systemge/DashboardClient"
 	"github.com/neutralusername/Systemge/DashboardClientCustomService"
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
@@ -14,7 +15,7 @@ type AppPing struct {
 	despawn   func()
 
 	systemgeClient  *SystemgeClient.SystemgeClient
-	dashboardClient *DashboardClientCustomService.Client
+	dashboardClient *DashboardClient.Client
 }
 
 func newAppPing(id string, despawn func()) *AppPing {
@@ -49,11 +50,11 @@ func newAppPing(id string, despawn func()) *AppPing {
 			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 		},
 		func(connection SystemgeConnection.SystemgeConnection) error {
-			connection.StartProcessingLoopSequentially(messageHandler)
+			connection.StartMessageHandlingLoop_Sequentially(messageHandler)
 			return nil
 		},
 		func(connection SystemgeConnection.SystemgeConnection) {
-			connection.StopProcessingLoop()
+			connection.StopMessageHandlingLoop()
 		},
 	)
 	app.dashboardClient = DashboardClientCustomService.New_(id,
